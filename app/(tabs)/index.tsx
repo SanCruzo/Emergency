@@ -1,73 +1,44 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function HomeScreen() {
+export default function LoginScreen() {
   const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    if (username === 'admin' && password === 'password') {
+      // Navigate to the index page on successful login
+      router.push('/mainPage');
+    } else {
+      Alert.alert('Login Failed', 'Invalid username or password.');
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/* Logo and Header */}
-      <View style={styles.topBar}>
-        <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoText}>Logo</Text>
-        </View>
-        <Text style={styles.title}>Homepage</Text>
-      </View>
+      {/* Page Title */}
+      <Text style={styles.title}>Login</Text>
 
-      {/* Main Buttons */}
-      <View style={styles.buttonGrid}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/patient')}
-        >
-          <Text>Insert Patient</Text>
-        </TouchableOpacity>
+      {/* Input Fields */}
+      <TextInput
+        style={styles.input}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/nearestHospital')} 
-        >
-          <Text>Nearest Hospital</Text>
-        </TouchableOpacity>
-
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/ambulanceInfo')} // Navigate to Ambulance Info page
->
-  <Text>Ambulance Info</Text>
-</TouchableOpacity>
-
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/activePatient')} // Navigate to Active Patient Info page
->
-  <Text>Active Patient Info</Text>
-</TouchableOpacity>
-
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/rescuedPatient')} // Navigate to Rescued Patient Info page
->
-  <Text>Rescued Patient Info</Text>
-</TouchableOpacity>
-
-        
-
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/multimedia')} // Navigate to Multimedia page
->
-  <Text>Multimedia</Text>
-</TouchableOpacity>
-      </View>
-
-      {/* Exit Button */}
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={() => console.log('Logout button pressed')}
-      >
-        <Text style={styles.logoutText}>LOGOUT</Text>
+      {/* Login Button */}
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -76,58 +47,37 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
-    paddingHorizontal: 40,
-    paddingVertical: 30,
+    padding: 20,
     backgroundColor: '#fff',
-    justifyContent: 'space-between',
-  },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  logoPlaceholder: {
-    width: 100,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#eee',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  logoText: {
-    fontWeight: 'bold',
   },
   title: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  buttonGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 20,
-    marginTop: 40,
+  input: {
+    width: '100%',
+    height: 50,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    backgroundColor: '#f9f9f9',
   },
   button: {
     backgroundColor: '#f9a825',
-    width: 320,
-    height: 100,
-    borderRadius: 15,
+    width: '100%',
+    height: 50,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 10,
-    paddingHorizontal: 10,
   },
-  logoutButton: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#eee',
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  logoutText: {
+  buttonText: {
+    fontSize: 16,
+    color: '#fff',
     fontWeight: 'bold',
   },
 });
