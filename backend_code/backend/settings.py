@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',                          # Allow frontend access
     'ambulance',                           # Our future app (amubulance interface)
     'hospital',                   # Our future app (hospital interface)
+    'users',
 ]
 
 MIDDLEWARE = [
