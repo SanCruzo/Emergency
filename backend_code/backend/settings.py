@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders', #allow cress-origin (cors)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,8 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',                      # Django REST Framework
     'rest_framework_simplejwt',             # JWT authentication
     'corsheaders',                          # Allow frontend access
-    'ambulance',                            # Our future app (amubulance interface)
-    'hospital',                             # Our future app (hospital interface)
+    'ambulance',                           # Our future app (amubulance interface)
+    'hospital',                   # Our future app (hospital interface)
 ]
 
 MIDDLEWARE = [
