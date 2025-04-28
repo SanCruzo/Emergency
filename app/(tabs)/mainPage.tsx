@@ -40,7 +40,7 @@ export default function HomeScreen() {
 
 <TouchableOpacity
   style={styles.button}
-  onPress={() => router.push('/activePatient')} // Navigate to Active Patient Info page
+  onPress={() => router.push('/VitalParameters')} // Navigate to Active Patient Info page
 >
   <Text>Active Patient Info</Text>
 </TouchableOpacity>
