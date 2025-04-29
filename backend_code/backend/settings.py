@@ -82,9 +82,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'our_db_name',       # <<-- Replace with PostgreSQL db name
-        'USER': 'our_db_user',        # <<-- PostgreSQL username
-        'PASSWORD': 'our_db_password',# <<-- PostgreSQL password
+        'NAME': 'er_db',       # <<-- Replace with PostgreSQL db name
+        'USER': 'ER',        # <<-- PostgreSQL username
+        'PASSWORD': 'ER',# <<-- PostgreSQL password
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -139,3 +139,5 @@ REST_FRAMEWORK = {
 } 
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+AUTH_USER_MODEL = 'users.CustomUser'
