@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
@@ -10,9 +10,13 @@ export default function HomeScreen() {
       {/* Logo and Header */}
       <View style={styles.topBar}>
         <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoText}>Logo</Text>
+          <Image
+            source={require('../../assets/images/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
-        <Text style={styles.title}>Homepage</Text>
+        <Text style={styles.title}>Emergency Response</Text>
       </View>
 
       {/* Main Buttons */}
@@ -126,6 +130,10 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 5,
     marginTop: 20,
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   logoutText: {
     fontWeight: 'bold',
