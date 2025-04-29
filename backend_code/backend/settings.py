@@ -87,6 +87,9 @@ DATABASES = {
         'PASSWORD': 'ER',# <<-- PostgreSQL password
         'HOST': 'localhost',
         'PORT': '5432',
+        'OPTIONS': {
+            'options': '-c search_path=mob_er,public', #tells Django to read the existing schema mob_er
+        }
     }
 }
 
