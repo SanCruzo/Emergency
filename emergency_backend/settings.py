@@ -3,8 +3,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'emergency_db',
         'USER': 'admin',
-        'PASSWORD': 'Tahsin07!',
-        'HOST': '192.168.1.104',
+        'PASSWORD': 'Password',
+        'HOST': 'Your PC local ip, not localhost',
         'PORT': '5432',
     }
 }
