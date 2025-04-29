@@ -13,7 +13,7 @@ services:
       POSTGRES_DB: er_db
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # optional schema
+      - ./emer.sql:/docker-entrypoint-initdb.d/emer.sql  # optional schema
     networks:
       - ernet
 
