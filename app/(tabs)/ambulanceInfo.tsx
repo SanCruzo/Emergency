@@ -1,21 +1,86 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, FlatList, Button, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+
+type Ambulance = {
+  id: number;
+  plate_number: string;
+  staff: string;
+  location_lat: number;
+  location_long: number;
+  created_at: string;
+};
 
 export default function AmbulanceInfoScreen() {
+  const [ambulances, setAmbulances] = useState<Ambulance[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  const fetchAmbulances = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('http://192.168.1.104:8000/api/ambulances/');
+      const data = await res.json();
+      setAmbulances(data);
+    } catch (e) {
+      console.error('Error fetching ambulances:', e);
+    }
+    setLoading(false);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchAmbulances();
+    }, [])
+  );
+
+  const handleGoToAddAmbulance = () => {
+    router.push('/addAmbulance');
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (!ambulances.length) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Ambulance Info</Text>
+        <Button title="Add Ambulance" onPress={handleGoToAddAmbulance} />
+        <Text style={styles.infoText}>No ambulance data found.</Text>
+      </View>
+    );
+  }
+
+  const renderAmbulance = ({ item }: { item: Ambulance }) => (
+    <TouchableOpacity
+      style={styles.infoTable}
+      onPress={() => router.push({ pathname: '/editAmbulanceScreen', params: { ambulance: JSON.stringify(item) } })}
+    >
+      <Text style={styles.infoText}>Ambulance Plate: {item.plate_number}</Text>
+      <Text style={styles.infoText}>Staff: {item.staff}</Text>
+      <Text style={styles.infoText}>
+        Location: {item.location_lat}, {item.location_long}
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      {/* Page Title */}
       <Text style={styles.title}>Ambulance Info</Text>
-
-      {/* Info Table */}
-      <View style={styles.infoTable}>
-        <Text style={styles.infoText}>Ambulance Plate: ABC-123</Text>
-        <Text style={styles.infoText}>Staff: John Doe, Jane Smith</Text>
-        <Text style={styles.infoText}>On-board Equipment: Oxygen Tank, Defibrillator</Text>
-        <Text style={styles.infoText}>Location: Near City Center</Text>
-      </View>
-
-      {/* Footer Text */}
+      <Button title="Add Ambulance" onPress={handleGoToAddAmbulance} />
+      <FlatList
+        data={ambulances}
+        renderItem={renderAmbulance}
+        keyExtractor={(item) => item.id.toString()}
+        style={{ width: '100%' }}
+        contentContainerStyle={{ alignItems: 'center' }}
+      />
       <Text style={styles.footerText}>
         It can include the on-board instrumentation, ambulance staff, and other details.
       </Text>

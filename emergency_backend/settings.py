@@ -2,9 +2,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'emergency_db',
-        'USER': 'postgres',
+        'USER': 'admin',
         'PASSWORD': 'Tahsin07!',
-        'HOST': 'localhost',
+        'HOST': '192.168.1.104',
         'PORT': '5432',
     }
 }
@@ -22,3 +22,9 @@ INSTALLED_APPS = [
     'messages',
     'ambulances',
 ]
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',  
+    ]
+}

@@ -1,14 +1,36 @@
 from django.db import models
-import uuid
-from users.models import User
 
-class Emergency(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    status = models.CharField(max_length=20, choices=[
-        ('full', 'Full'),
-        ('available', 'Available')
-    ])
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    location_lat = models.DecimalField(max_digits=9, decimal_places=6)
-    location_long = models.DecimalField(max_digits=9, decimal_places=6)
-    created_at = models.DateTimeField(auto_now_add=True)
+class Patient(models.Model):
+    SYMPTOM_CATEGORIES = [
+        ('Respiratory', 'Respiratory'),
+        ('Cardiac', 'Cardiac'),
+        ('Neurological', 'Neurological'),
+        ('Cutaneous', 'Cutaneous'),
+        ('Gastrointestinal', 'Gastrointestinal'),
+        ('Trauma', 'Trauma'),
+    ]
+
+    TRIAGE_CHOICES = [
+        ('white', 'White - No triage'),
+        ('green', 'Green - Minor'),
+        ('orange', 'Orange - Moderate'),
+        ('red', 'Red - Major'),
+    ]
+
+
+    name = models.CharField(max_length=100, blank=True, null=True)
+    symptoms = models.JSONField(default=list, blank=True, null=True)  
+    triage_code = models.CharField(max_length=10, choices=TRIAGE_CHOICES, blank=True, null=True)
+    is_active = models.BooleanField(default=True, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+    # IDsiz hasta için ek alanlar:
+    gender = models.CharField(max_length=10, blank=True, null=True)
+    age_group = models.CharField(max_length=20, blank=True, null=True)
+    height = models.CharField(max_length=20, blank=True, null=True)
+    weight = models.CharField(max_length=20, blank=True, null=True)
+    complexion = models.CharField(max_length=20, blank=True, null=True)
+    hair = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return self.name or f"Patient {self.id}"

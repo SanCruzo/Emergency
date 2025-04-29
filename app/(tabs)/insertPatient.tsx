@@ -1,10 +1,9 @@
-import * as React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import { Checkbox } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 
-const symptoms = {
+const symptomsList = {
   Respiratory: ['Dyspnea', 'Rales', 'Cough', 'Cyanosis', 'Tachypnea'],
   Cardiac: ['Chest pain', 'Palpitations', 'Hypotension', 'Tachycardia', 'Absent pulse'],
   Neurological: ['Confusion', 'Loss of consciousness', 'Convulsions', 'Paralysis'],
@@ -20,9 +19,13 @@ const triageColors = [
   { label: 'Red - Major', value: 'red' },
 ];
 
-export default function SymptomsCheckboxList() {
-  const [checkedItems, setCheckedItems] = React.useState<Record<string, boolean>>({});
-  const [triageCode, setTriageCode] = React.useState('');
+export default function AddPatientScreen() {
+  const [name, setName] = useState('');
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [triageCode, setTriageCode] = useState('');
+  const [isActive, setIsActive] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const toggleCheckbox = (category: string, symptom: string) => {
     const key = `${category}-${symptom}`;
@@ -32,11 +35,62 @@ export default function SymptomsCheckboxList() {
     }));
   };
 
+  const handleAdd = async () => {
+    if (!triageCode) {
+      Alert.alert('Error', 'Please select a triage code.');
+      return;
+    }
+    setLoading(true);
+
+    // Seçili semptomları dizi olarak topla
+    const selectedSymptoms: string[] = [];
+    Object.entries(checkedItems).forEach(([key, value]) => {
+      if (value) {
+        const [, symptom] = key.split('-');
+        selectedSymptoms.push(symptom);
+      }
+    });
+
+    try {
+      const response = await fetch('http://192.168.1.104:8000/api/patients/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name || null,
+          symptoms: selectedSymptoms,
+          triage_code: triageCode,
+          is_active: isActive,
+        }),
+      });
+      if (response.ok) {
+        setName('');
+        setCheckedItems({});
+        setTriageCode('');
+        setIsActive(true);
+        Alert.alert('Success', 'Patient added!');
+        router.back();
+      } else {
+        const error = await response.text();
+        Alert.alert('Error', 'Failed to add patient: ' + error);
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Network error.');
+    }
+    setLoading(false);
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Add Patient</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Name (optional)"
+        value={name}
+        onChangeText={setName}
+      />
 
       {/* Checkbox groups */}
-      {Object.entries(symptoms).map(([category, items]) => (
+      {Object.entries(symptomsList).map(([category, items]) => (
         <View key={category} style={styles.groupContainer}>
           <Text style={styles.categoryTitle}>{category}</Text>
           {items.map((symptom) => {
@@ -77,10 +131,24 @@ export default function SymptomsCheckboxList() {
         ))}
       </View>
 
-    <TouchableOpacity style={styles.sendButton} onPress={() => router.push('/afterRegistration')}>
-      <Text style={styles.sendButtonText}>Send</Text>
-    </TouchableOpacity>
+      {/* Aktif/Pasif hasta seçimi */}
+      <View style={styles.activeContainer}>
+        <Text style={styles.label}>Is Active?</Text>
+        <TouchableOpacity
+          style={[styles.activeButton, isActive && styles.activeSelected]}
+          onPress={() => setIsActive(true)}
+        >
+          <Text style={styles.activeText}>Active</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.activeButton, !isActive && styles.activeSelected]}
+          onPress={() => setIsActive(false)}
+        >
+          <Text style={styles.activeText}>Passive</Text>
+        </TouchableOpacity>
+      </View>
 
+      <Button title={loading ? 'Adding...' : 'Add Patient'} onPress={handleAdd} disabled={loading} />
     </ScrollView>
   );
 }
@@ -91,6 +159,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#90caf9',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    fontSize: 16,
+    width: '100%',
   },
   groupContainer: {
     marginBottom: 30,
@@ -112,22 +195,10 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
   },
-  pickerWrapper: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    width: '100%',
-    marginBottom: 30,
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
   triageOptionsContainer: {
     width: '100%',
     marginBottom: 30,
   },
-
   triageOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -139,33 +210,38 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: '#fff',
   },
-
   triageOptionSelected: {
     borderColor: '#007bff',
     backgroundColor: '#e6f0ff',
   },
-
   triageColorBoxSmall: {
     width: 20,
     height: 20,
     borderRadius: 4,
     marginRight: 15,
   },
-
   triageOptionLabel: {
     fontSize: 16,
   },
-
-  sendButton: {
-    backgroundColor: '#f9a825',
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 5,
-    width: '100%'
+  activeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+    gap: 10,
   },
-
-  sendButtonText: {
+  activeButton: {
+    borderWidth: 1,
+    borderColor: '#90caf9',
+    borderRadius: 8,
+    padding: 10,
+    marginHorizontal: 5,
+    backgroundColor: '#fff',
+  },
+  activeSelected: {
+    backgroundColor: '#90caf9',
+  },
+  activeText: {
     fontWeight: 'bold',
-    textAlign: 'center',
+    color: '#333',
   },
 });

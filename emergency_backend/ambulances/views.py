@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework.viewsets import ModelViewSet
+from .models import Ambulance
+from .serializers import AmbulanceSerializer
 
-# Create your views here.
+class AmbulanceViewSet(ModelViewSet):
+    queryset = Ambulance.objects.all()
+    serializer_class = AmbulanceSerializer
