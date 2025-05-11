@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
@@ -10,65 +10,54 @@ export default function HomeScreen() {
       {/* Logo and Header */}
       <View style={styles.topBar}>
         <View style={styles.logoPlaceholder}>
-          <Text style={styles.logoText}>Logo</Text>
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
-        <Text style={styles.title}>Homepage</Text>
+        <Text style={styles.title}>Emergency Response</Text>
       </View>
 
       {/* Main Buttons */}
       <View style={styles.buttonGrid}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/patient')}
-        >
-          <Text>Insert Patient</Text>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/patient')}>
+          <Text style={{ fontWeight: 'bold' }}>Insert Patient</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/nearestHospital')} 
-        >
-          <Text>Nearest Hospital</Text>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/nearestHospital')}>
+          <Text style={{ fontWeight: 'bold' }}>Nearest Hospital</Text>
         </TouchableOpacity>
 
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/ambulanceInfo')} // Navigate to Ambulance Info page
->
-  <Text>Ambulance Info</Text>
-</TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/ambulanceInfo')}>
+          <Text style={{ fontWeight: 'bold' }}>Ambulance Info</Text>
+        </TouchableOpacity>
 
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/VitalParameters')} // Navigate to Active Patient Info page
->
-  <Text>Active Patient Info</Text>
-</TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/VitalParameters')}>
+          <Text style={{ fontWeight: 'bold' }}>Vital Parameters</Text>
+        </TouchableOpacity>
 
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/rescuedPatient')} // Navigate to Rescued Patient Info page
->
-  <Text>Rescued Patient Info</Text>
-</TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/rescuedPatient')}>
+          <Text style={{ fontWeight: 'bold' }}>Rescued Patient Info</Text>
+        </TouchableOpacity>
 
-        
-
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/multimedia')} // Navigate to Multimedia page
->
-  <Text>Multimedia</Text>
-</TouchableOpacity>
+        {/*
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/multimedia')}>
+          <Text style={{ fontWeight: 'bold' }}>Multimedia</Text>
+        </TouchableOpacity>
+        */}
       </View>
 
-      {/* Exit Button */}
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={() => router.push('/')} // Navigate to Login page 
-      >
-        <Text style={styles.logoutText}>LOGOUT</Text>
-      </TouchableOpacity>
+      {/* Bottom Bar */}
+      <View style={styles.bottomBar}>
+        <TouchableOpacity style={styles.logoutButton} onPress={() => console.log('Login button pressed')}>
+          <Text style={styles.logoutText}>Logged user: John Doe</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={() => console.log('Logout button pressed')}>
+          <Text style={styles.logoutText}>LOGOUT</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -83,24 +72,42 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   topBar: {
+      flexDirection: 'row',
+      backgroundColor: '#00FFFF',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      height: 100,
+      width: '100%',
+      borderRadius: 15,
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+    },
+  bottomBar: {
     flexDirection: 'row',
+    backgroundColor: '#fff',
     justifyContent: 'space-between',
     alignItems: 'center',
+    height: 100,
+    borderRadius: 15,
+    paddingHorizontal: 10,
   },
   logoPlaceholder: {
     width: 100,
     height: 50,
-    borderRadius: 25,
-    backgroundColor: '#eee',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#eee',
+    borderRadius: 25,
+    overflow: 'hidden',
   },
-  logoText: {
-    fontWeight: 'bold',
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     fontSize: 24,
     fontWeight: '600',
+    paddingVertical: 10,
   },
   buttonGrid: {
     flexDirection: 'row',
@@ -110,7 +117,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   button: {
-    backgroundColor: '#f9a825',
+    backgroundColor: '#00B7EB',
     width: 320,
     height: 100,
     borderRadius: 15,
@@ -120,12 +127,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   logoutButton: {
-    alignSelf: 'flex-end',
     backgroundColor: '#eee',
     paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 5,
-    marginTop: 20,
   },
   logoutText: {
     fontWeight: 'bold',
