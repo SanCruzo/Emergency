@@ -13,10 +13,11 @@ const symptoms = {
 };
 
 const triageColors = [
-  { label: 'White - No triage', value: 'white' },
-  { label: 'Green - Minor', value: 'green' },
-  { label: 'Orange - Moderate', value: 'orange' },
-  { label: 'Red - Major', value: 'red' },
+  { label: 'White - Not Urgent', value: 'white' },
+  { label: 'Green - Minor Urgent', value: 'green' },
+  { label: 'Light Blue - Deferrable Urgency', value: 'deepskyblue' },
+  { label: 'Orange - Urgent', value: 'orange' },
+  { label: 'Red - Major Urgent', value: 'red' },
 ];
 
 export default function SymptomsCheckboxList() {
@@ -77,7 +78,7 @@ export default function SymptomsCheckboxList() {
       </View>
 
     <TouchableOpacity style={styles.sendButton} onPress={() => console.log('Send button pressed')}>
-      <Text style={styles.sendButtonText}>Send</Text>
+      <Text style={styles.sendButtonText}>SEND</Text>
     </TouchableOpacity>
 
     </ScrollView>
@@ -149,6 +150,8 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     marginRight: 15,
+    borderColor: 'black',
+    borderWidth: 1,
   },
 
   triageOptionLabel: {
@@ -156,15 +159,18 @@ const styles = StyleSheet.create({
   },
 
   sendButton: {
-    backgroundColor: '#828282',
+    backgroundColor: '#ffffff',
     paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 5,
-    width: '100%'
+    width: '100%',
+    borderColor: 'black',
+    borderWidth: 1,
   },
 
   sendButtonText: {
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: 20
   },
 });
