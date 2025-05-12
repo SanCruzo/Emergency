@@ -1,68 +1,77 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Switch } from 'react-native';
-import * as LocalAuthentication from 'expo-local-authentication'; // Import Local Authentication
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../scripts/firebaseConfig'; // Import the configured auth instance
+import { API_URL } from '../config';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isMfaEnabled, setIsMfaEnabled] = useState(true); // State to toggle MFA on/off
+  const [verificationCode, setVerificationCode] = useState('');
+  const [showVerification, setShowVerification] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Toggle MFA on or off
-  const toggleMfa = () => {
-    setIsMfaEnabled((prev) => !prev);
-  };
-
-  // Handle biometric authentication
-  const handleBiometricAuth = async () => {
+  // Handle initial login
+  const handleLogin = async () => {
     try {
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      if (!hasHardware) {
-        Alert.alert('Error', 'Your device does not support biometric authentication.');
-        return false;
-      }
-
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-      if (!isEnrolled) {
-        Alert.alert('Error', 'No biometric authentication methods are enrolled.');
-        return false;
-      }
-
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Authenticate with Biometrics',
-        fallbackLabel: 'Use Passcode',
+      setIsLoading(true);
+      
+      // First step: Send credentials to backend
+      const response = await fetch(`${API_URL}/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: email,
+          password: password,
+        }),
       });
 
-      return result.success;
+      const data = await response.json();
+
+      if (response.ok) {
+        // Show verification code input
+        setShowVerification(true);
+        Alert.alert('Verification Code Sent', 'Please check your email for the verification code.');
+      } else {
+        Alert.alert('Login Failed', data.error || 'Invalid credentials');
+      }
     } catch (error) {
-      console.error('Biometric Authentication Error:', error);
-      Alert.alert('Error', 'An error occurred during biometric authentication.');
-      return false;
+      Alert.alert('Error', 'An error occurred during login');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Handle user login
-  const handleLogin = async () => {
+  // Handle verification code submission
+  const handleVerification = async () => {
     try {
-      // User login with email and password
-      await signInWithEmailAndPassword(auth, email, password);
+      setIsLoading(true);
+      
+      const response = await fetch(`${API_URL}/verify-login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: email,
+          verification_code: verificationCode,
+        }),
+      });
 
-      if (isMfaEnabled) {
-        // If MFA is enabled, proceed to biometric authentication
-        const isBiometricAuthenticated = await handleBiometricAuth();
-        if (isBiometricAuthenticated) {
-          router.push('/mainPage');
-        }
-      } else {
-        // If MFA is disabled, log in directly
+      const data = await response.json();
+
+      if (response.ok) {
+        // Login successful, navigate to main page
         router.push('/mainPage');
+      } else {
+        Alert.alert('Verification Failed', data.error || 'Invalid verification code');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      Alert.alert('Login Failed', errorMessage);
+      Alert.alert('Error', 'An error occurred during verification');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,29 +79,72 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
 
-      {/* MFA Toggle */}
-      <View style={styles.mfaToggle}>
-        <Text style={styles.mfaToggleText}>Enable Biometric MFA</Text>
-        <Switch value={isMfaEnabled} onValueChange={toggleMfa} />
-      </View>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+      {!showVerification ? (
+        // Initial login form
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <TouchableOpacity 
+            style={[styles.button, isLoading && styles.buttonDisabled]} 
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonText}>
+              {isLoading ? 'Logging in...' : 'Login'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.registerLink} 
+            onPress={() => router.push('/register')}
+          >
+            <Text style={styles.registerLinkText}>
+              Don't have an account? Register
+            </Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        // Verification code form
+        <>
+          <Text style={styles.verificationText}>
+            Please enter the verification code sent to your email
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Verification Code"
+            value={verificationCode}
+            onChangeText={setVerificationCode}
+            keyboardType="number-pad"
+            maxLength={6}
+          />
+          <TouchableOpacity 
+            style={[styles.button, isLoading && styles.buttonDisabled]} 
+            onPress={handleVerification}
+            disabled={isLoading}
+          >
+            <Text style={styles.buttonText}>
+              {isLoading ? 'Verifying...' : 'Verify'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.secondaryButton} 
+            onPress={() => setShowVerification(false)}
+          >
+            <Text style={styles.secondaryButtonText}>Back to Login</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }
@@ -128,18 +180,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
   buttonText: {
     fontSize: 16,
     color: '#fff',
     fontWeight: 'bold',
   },
-  mfaToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  mfaToggleText: {
+  verificationText: {
     fontSize: 16,
-    marginRight: 10,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#666',
+  },
+  secondaryButton: {
+    marginTop: 10,
+    padding: 10,
+  },
+  secondaryButtonText: {
+    color: '#f9a825',
+    fontSize: 16,
+  },
+  registerLink: {
+    marginTop: 10,
+    padding: 10,
+  },
+  registerLinkText: {
+    color: '#f9a825',
+    fontSize: 16,
   },
 });

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import { useRouter } from 'expo-router';
+import { API_URL } from '../config';
 
 const symptomsList = {
   Respiratory: ['Dyspnea', 'Rales', 'Cough', 'Cyanosis', 'Tachypnea'],
@@ -52,7 +53,7 @@ export default function AddPatientScreen() {
     });
 
     try {
-      const response = await fetch('http://192.168.1.104:8000/api/patients/', {
+      const response = await fetch(`${API_URL}/patients/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
