@@ -11,7 +11,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     role = models.CharField(max_length=20, choices=[
         ('admin', 'Admin'),
-        ('responder', 'Responder'),
+        ('ambulance', 'Ambulance'),
         ('hospital', 'Hospital')
     ])
     mfa_secret = models.TextField(null=True, blank=True)

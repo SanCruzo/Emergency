@@ -10,7 +10,7 @@ export default function RegisterScreen() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'responder', // Default role
+    role: 'ambulance', // Default role
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -106,14 +106,14 @@ export default function RegisterScreen() {
           <TouchableOpacity
             style={[
               styles.roleButton,
-              formData.role === 'responder' && styles.roleButtonActive,
+              formData.role === 'ambulance' && styles.roleButtonActive,
             ]}
-            onPress={() => setFormData({ ...formData, role: 'responder' })}
+            onPress={() => setFormData({ ...formData, role: 'ambulance' })}
           >
             <Text style={[
               styles.roleButtonText,
-              formData.role === 'responder' && styles.roleButtonTextActive,
-            ]}>Responder</Text>
+              formData.role === 'ambulance' && styles.roleButtonTextActive,
+            ]}>Ambulance</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[

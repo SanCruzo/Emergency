@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS mob_er."user"
     is_active boolean DEFAULT true,
     CONSTRAINT user_pkey PRIMARY KEY (id),
     CONSTRAINT user_email_key UNIQUE (email),
-    CONSTRAINT user_role_check CHECK (role::text = ANY (ARRAY['admin'::character varying, 'responder'::character varying, 'hospital'::character varying]::text[]))
+    CONSTRAINT user_role_check CHECK (role::text = ANY (ARRAY['admin'::character varying, 'ambulance'::character varying, 'hospital'::character varying]::text[]))
 )
 
 TABLESPACE pg_default;
