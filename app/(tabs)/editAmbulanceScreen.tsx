@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { API_URL } from '../config';
 
 export default function EditAmbulanceScreen() {
   const params = useLocalSearchParams();
@@ -19,7 +20,7 @@ export default function EditAmbulanceScreen() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://192.168.1.104:8000/api/ambulances/${ambulance.id}/`,
+        `${API_URL}/ambulances/${ambulance.id}/`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

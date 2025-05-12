@@ -2,6 +2,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, FlatList, Button, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { API_URL } from '../config';
 
 type Ambulance = {
   id: number;
@@ -20,7 +21,7 @@ export default function AmbulanceInfoScreen() {
   const fetchAmbulances = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://192.168.1.104:8000/api/ambulances/');
+      const res = await fetch(`${API_URL}/ambulances/`);
       const data = await res.json();
       setAmbulances(data);
     } catch (e) {

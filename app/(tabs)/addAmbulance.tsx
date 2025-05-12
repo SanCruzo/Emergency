@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { API_URL } from '../config';
 
 export default function AddAmbulanceScreen() {
   const [plateNumber, setPlateNumber] = useState('');
@@ -17,7 +18,7 @@ export default function AddAmbulanceScreen() {
     }
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.1.104:8000/api/ambulances/', {
+      const response = await fetch(`${API_URL}/ambulances/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

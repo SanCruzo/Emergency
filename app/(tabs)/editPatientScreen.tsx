@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { API_URL } from '../config';
 
 const symptomsList = {
   Respiratory: ['Dyspnea', 'Rales', 'Cough', 'Cyanosis', 'Tachypnea'],
@@ -94,7 +95,7 @@ export default function EditPatientScreen() {
 
     try {
       const response = await fetch(
-        `http://192.168.1.104:8000/api/patients/${patient.id}/`,
+        `${API_URL}/patients/${patient.id}/`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
