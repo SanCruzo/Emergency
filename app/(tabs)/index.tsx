@@ -1,107 +1,67 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Switch } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { getAuth, signInWithEmailAndPassword, sendSignInLinkToEmail } from 'firebase/auth';
-import app from '../scripts/firebaseConfig';
 
-export default function LoginScreen() {
+export default function HomeScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
-  const [isMfaStep, setIsMfaStep] = useState(false);
-  const [isMfaEnabled, setIsMfaEnabled] = useState(true); // State to toggle MFA on/off
-
-  // Toggle MFA on or off
-  const toggleMfa = () => {
-    setIsMfaEnabled((prev) => !prev);
-  };
-
-  // Handle user login
-  const handleLogin = async () => {
-    const auth = getAuth(app);
-    try {
-      // User login with email and password
-      await signInWithEmailAndPassword(auth, email, password);
-
-      if (isMfaEnabled) {
-        // If MFA is enabled, generate a verification code
-        const code = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
-        setGeneratedCode(code);
-
-        // Send the verification code via email
-        await sendSignInLinkToEmail(auth, email, {
-          url: 'https://emergency-8a562.firebaseapp.com', // Firebase URL
-          handleCodeInApp: true,
-        });
-
-        Alert.alert('Verification Required', 'A verification code has been sent to your email.');
-        setIsMfaStep(true); // Proceed to MFA step
-      } else {
-        // If MFA is disabled, log in directly
-        Alert.alert('Success', 'You have successfully logged in.');
-        router.push('/mainPage');
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      Alert.alert('Login Failed', errorMessage);
-    }
-  };
-
-  // Handle verification code submission
-  const handleVerifyCode = () => {
-    if (verificationCode === generatedCode) {
-      router.push('/mainPage');
-    } else {
-      Alert.alert('Verification Failed', 'The verification code is incorrect.');
-    }
-  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-
-      {/* MFA Toggle */}
-      <View style={styles.mfaToggle}>
-        <Text style={styles.mfaToggleText}>Enable MFA</Text>
-        <Switch value={isMfaEnabled} onValueChange={toggleMfa} />
+      {/* Logo and Header */}
+      <View style={styles.topBar}>
+        <View style={styles.logoPlaceholder}>
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+        </View>
+        <Text style={styles.title}>Emergency Response</Text>
       </View>
 
-      {!isMfaStep ? (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="Verification Code"
-            value={verificationCode}
-            onChangeText={setVerificationCode}
-            keyboardType="number-pad"
-          />
-          <TouchableOpacity style={styles.button} onPress={handleVerifyCode}>
-            <Text style={styles.buttonText}>Verify Code</Text>
-          </TouchableOpacity>
-        </>
-      )}
+      {/* Main Buttons */}
+      <View style={styles.buttonGrid}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/patient')}>
+          <Text style={{ fontWeight: 'bold' }}>Insert Patient</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/nearestHospital')}>
+          <Text style={{ fontWeight: 'bold' }}>Nearest Hospital</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/ambulanceInfo')}>
+          <Text style={{ fontWeight: 'bold' }}>Ambulance Info</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/VitalParameters')}>
+          <Text style={{ fontWeight: 'bold' }}>Vital Parameters</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/rescuedPatient')}>
+          <Text style={{ fontWeight: 'bold' }}>Rescued Patient Info</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/chat')}>
+          <Text style={{ fontWeight: 'bold' }}>Hospital Chat</Text>
+        </TouchableOpacity>
+
+        {/*
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/multimedia')}>
+          <Text style={{ fontWeight: 'bold' }}>Multimedia</Text>
+        </TouchableOpacity>
+        */}
+      </View>
+
+      {/* Bottom Bar */}
+      <View style={styles.bottomBar}>
+        <TouchableOpacity style={styles.logoutButton} onPress={() => console.log('Login button pressed')}>
+          <Text style={styles.logoutText}>Logged user: John Doe</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={() => console.log('Logout button pressed')}>
+          <Text style={styles.logoutText}>LOGOUT</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -109,46 +69,74 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    flexDirection: 'column',
+    paddingHorizontal: 40,
+    paddingVertical: 30,
     backgroundColor: '#fff',
+    justifyContent: 'space-between',
+  },
+  topBar: {
+      flexDirection: 'row',
+      backgroundColor: '#00FFFF',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      height: 100,
+      width: '100%',
+      borderRadius: 15,
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+    },
+  bottomBar: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 100,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+  },
+  logoPlaceholder: {
+    width: 100,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#eee',
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontWeight: '600',
+    paddingVertical: 10,
   },
-  input: {
-    width: '100%',
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    backgroundColor: '#f9f9f9',
+  buttonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 20,
+    marginTop: 40,
   },
   button: {
-    backgroundColor: '#f9a825',
-    width: '100%',
-    height: 50,
-    borderRadius: 10,
+    backgroundColor: '#00B7EB',
+    width: 320,
+    height: 100,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
+    margin: 10,
+    paddingHorizontal: 10,
   },
-  buttonText: {
-    fontSize: 16,
-    color: '#fff',
+  logoutButton: {
+    backgroundColor: '#eee',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 5,
+  },
+  logoutText: {
     fontWeight: 'bold',
-  },
-  mfaToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  mfaToggleText: {
-    fontSize: 16,
-    marginRight: 10,
   },
 });
