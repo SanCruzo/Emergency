@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from rest_framework import generics
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
@@ -52,12 +53,14 @@ def verify_login(request):
     user.email_verification_code_created_at = None
     user.save()
     
-    # Generate authentication token or session
-    # ... (your existing token generation code)
-    
+    refresh = RefreshToken.for_user(user)
     return Response({
         'message': 'Login successful',
-        'token': 'your-auth-token-here'
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+        'user_id': str(user.id),
+        'username': user.username,
+        'role': user.role,
     })
 
 class RegisterView(generics.CreateAPIView):

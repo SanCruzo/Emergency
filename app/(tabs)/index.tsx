@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { API_URL } from '../config';
+import { storeAuth } from '../utils/auth';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -48,7 +49,6 @@ export default function LoginScreen() {
   const handleVerification = async () => {
     try {
       setIsLoading(true);
-      
       const response = await fetch(`${API_URL}/verify-login/`, {
         method: 'POST',
         headers: {
@@ -59,11 +59,15 @@ export default function LoginScreen() {
           verification_code: verificationCode,
         }),
       });
-
       const data = await response.json();
-
       if (response.ok) {
-        // Login successful, navigate to main page
+        // Store JWT tokens and user info securely
+        await storeAuth(data.access, data.refresh, {
+          user_id: data.user_id,
+          username: data.username,
+          role: data.role,
+        });
+        // Navigate to main page after successful login
         router.push('/mainPage');
       } else {
         Alert.alert('Verification Failed', data.error || 'Invalid verification code');
