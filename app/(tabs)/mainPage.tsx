@@ -56,14 +56,13 @@ export default function HomeScreen() {
   <Text>Rescued Patient Info</Text>
 </TouchableOpacity>
 
-        
-
 <TouchableOpacity
   style={styles.button}
-  onPress={() => router.push('/multimedia')} // Navigate to Multimedia page
+  onPress={() => router.push('/directMessageUsers')}
 >
-  <Text>Multimedia</Text>
+  <Text>Direct Message</Text>
 </TouchableOpacity>
+
       </View>
 
       {/* Exit Button */}

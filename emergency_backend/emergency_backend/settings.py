@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'users',
     'emergencies',
     'ambulances',
-
+    'dmessages',
 ]
 AUTH_USER_MODEL = 'users.User'
 
