@@ -39,15 +39,21 @@ export default function DirectMessageUsersScreen() {
     }
   }, [currentUserId]);
 
-  const renderItem = ({ item }: { item: User }) => (
-    <TouchableOpacity
-      style={styles.userItem}
-      onPress={() => router.push({ pathname: '/directMessageChat', params: { userId: item.id, username: item.username, role: item.role } })}
-    >
-      <Text style={styles.username}>{item.username}</Text>
-      <Text style={styles.role}>{item.role}</Text>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }: { item: User }) => {
+    // Map role to display string
+    let displayRole = item.role;
+    if (item.role === 'ambulance') displayRole = 'Ambulance Staff';
+    else if (item.role === 'hospital') displayRole = 'Hospital Staff';
+    return (
+      <TouchableOpacity
+        style={styles.userItem}
+        onPress={() => router.push({ pathname: '/directMessageChat', params: { userId: item.id, username: item.username, role: displayRole } })}
+      >
+        <Text style={styles.username}>{item.username}</Text>
+        <Text style={styles.role}>{displayRole}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
