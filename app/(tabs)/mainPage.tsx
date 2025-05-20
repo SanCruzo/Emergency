@@ -69,7 +69,7 @@ export default function HomeScreen() {
       {/* Exit Button */}
       <TouchableOpacity
         style={styles.logoutButton}
-        onPress={() => router.push('/')} // Navigate to Login page 
+        onPress={() => router.replace('/')} // Navigate to Login page and clear history
       >
         <Text style={styles.logoutText}>LOGOUT</Text>
       </TouchableOpacity>
