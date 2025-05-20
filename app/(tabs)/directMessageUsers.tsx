@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { API_URL } from '../config';
+import { getUserId } from '../utils/auth';
 
 interface User {
   id: string;
@@ -12,21 +13,31 @@ interface User {
 export default function DirectMessageUsersScreen() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    // Get current user id
+    getUserId().then(setCurrentUserId);
+  }, []);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await fetch(`${API_URL}/users/`);
         const data = await response.json();
-        setUsers(data);
+        // Filter out the current user
+        const filtered = currentUserId ? data.filter((u: User) => u.id !== currentUserId) : data;
+        setUsers(filtered);
       } catch (e) {
-        // Hata yönetimi
+        // Handle error
       }
       setLoading(false);
     };
-    fetchUsers();
-  }, []);
+    if (currentUserId !== null) {
+      fetchUsers();
+    }
+  }, [currentUserId]);
 
   const renderItem = ({ item }: { item: User }) => (
     <TouchableOpacity

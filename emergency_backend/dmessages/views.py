@@ -18,10 +18,14 @@ class MessageViewSet(viewsets.ModelViewSet):
         sender = self.request.user
         receiver_id = self.request.data['receiver']
         plain_text = self.request.data['plain_message']
+        # Get the receiver as a User object
+        receiver = User.objects.get(id=receiver_id)
+        # Encrypt the message
         shared_secret = f"{min(str(sender.id), str(receiver_id))}:{max(str(sender.id), str(receiver_id))}"
-        salt = b"static_salt_for_demo"  # Daha güvenli için user bazlı salt üretilebilir
+        salt = b"static_salt_for_demo"  # For better security, use a user-based salt
         encrypted = encrypt_message(plain_text, shared_secret, salt)
-        serializer.save(sender=sender, encrypted_message=encrypted)
+        # Save the message with sender and receiver as User objects
+        serializer.save(sender=sender, receiver=receiver, encrypted_message=encrypted)
 
     @action(detail=True, methods=['get'])
     def decrypt(self, request, pk=None):

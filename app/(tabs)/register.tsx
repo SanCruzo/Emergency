@@ -47,7 +47,8 @@ export default function RegisterScreen() {
       const data = await response.json();
 
       if (response.ok) {
-        Alert.alert('Success', 'Registration successful! Please check your email for verification.', [
+        // Registration successful, navigate to login
+        Alert.alert('Success', 'Registration successful!', [
           {
             text: 'OK',
             onPress: () => router.push('/'),

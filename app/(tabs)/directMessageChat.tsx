@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { API_URL } from '../config';
-import { getAccessToken, getUserId, getUsername } from '../utils/auth';
+import { getAccessToken, getUserId, getUsername, refreshAccessToken } from '../utils/auth';
 
 interface Message {
   id: string;
@@ -24,6 +24,7 @@ export default function DirectMessageChatScreen() {
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUsername, setCurrentUsername] = useState<string | null>(null);
+  const [decrypting, setDecrypting] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
   // Fetch current user info on mount
@@ -37,6 +38,7 @@ export default function DirectMessageChatScreen() {
     if (!currentUserId) return;
     const fetchMessages = async () => {
       setLoading(true);
+      setDecrypting(true);
       const token = await getAccessToken();
       try {
         const res = await fetch(`${API_URL}/messages/?ordering=timestamp`, {
@@ -48,11 +50,27 @@ export default function DirectMessageChatScreen() {
           (msg.sender === currentUserId && msg.receiver === receiverId) ||
           (msg.sender === receiverId && msg.receiver === currentUserId)
         );
-        setMessages(filtered);
+        // Decrypt each message using the backend endpoint
+        const decryptedMessages = await Promise.all(
+          filtered.map(async (msg: Message) => {
+            try {
+              const decRes = await fetch(`${API_URL}/messages/${msg.id}/decrypt/`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+              });
+              if (decRes.ok) {
+                const decData = await decRes.json();
+                return { ...msg, decrypted_message: decData.decrypted };
+              }
+            } catch {}
+            return { ...msg, decrypted_message: '[Decryption failed]' };
+          })
+        );
+        setMessages(decryptedMessages);
       } catch (e) {
         // Handle error
       }
       setLoading(false);
+      setDecrypting(false);
     };
     fetchMessages();
   }, [currentUserId, receiverId]);
@@ -61,38 +79,83 @@ export default function DirectMessageChatScreen() {
   const handleSend = async () => {
     if (!input.trim() || !currentUserId) return;
     setSending(true);
-    const token = await getAccessToken();
-    try {
-      const res = await fetch(`${API_URL}/messages/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          receiver: receiverId,
-          plain_message: input.trim(),
-        }),
-      });
-      if (res.ok) {
-        setInput('');
-        // Refresh messages after sending
-        const data = await res.json();
-        setMessages((prev) => [...prev, data]);
-        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+    let token = await getAccessToken();
+    let triedRefresh = false;
+    const sendMessage = async (accessToken: string) => {
+      try {
+        const res = await fetch(`${API_URL}/messages/`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            receiver: receiverId,
+            plain_message: input.trim(),
+          }),
+        });
+        if (res.ok) {
+          setInput('');
+          // Refresh messages after sending
+          const data = await res.json();
+          // Decrypt the new message immediately
+          try {
+            const decRes = await fetch(`${API_URL}/messages/${data.id}/decrypt/`, {
+              headers: { 'Authorization': `Bearer ${accessToken}` },
+            });
+            if (decRes.ok) {
+              const decData = await decRes.json();
+              setMessages((prev) => [
+                ...prev,
+                { ...data, decrypted_message: decData.decrypted },
+              ]);
+            } else {
+              setMessages((prev) => [
+                ...prev,
+                { ...data, decrypted_message: '[Decryption failed]' },
+              ]);
+            }
+          } catch {
+            setMessages((prev) => [
+              ...prev,
+              { ...data, decrypted_message: '[Decryption failed]' },
+            ]);
+          }
+          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+        } else {
+          // If token is expired, try to refresh and retry once
+          const errorData = await res.json();
+          if (
+            errorData.code === 'token_not_valid' &&
+            errorData.messages &&
+            errorData.messages.some((m: any) => m.message && m.message.includes('expired')) &&
+            !triedRefresh
+          ) {
+            triedRefresh = true;
+            const newToken = await refreshAccessToken();
+            if (newToken) {
+              await sendMessage(newToken);
+              return;
+            }
+          }
+          // Show error message from backend
+          Alert.alert('Message Send Error', JSON.stringify(errorData));
+        }
+      } catch (e) {
+        // Show generic error alert
+        Alert.alert('Message Send Error', 'An unexpected error occurred.');
       }
-    } catch (e) {
-      // Handle error
-    }
-    setSending(false);
+      setSending(false);
+    };
+    await sendMessage(token!);
   };
 
   // Render each message
-  const renderItem = ({ item }: { item: Message }) => {
+  const renderItem = ({ item }: { item: Message & { decrypted_message?: string } }) => {
     const isMine = item.sender === currentUserId;
     return (
       <View style={[styles.messageBubble, isMine ? styles.myMessage : styles.theirMessage]}>
-        <Text style={styles.messageText}>{item.encrypted_message}</Text>
+        <Text style={styles.messageText}>{item.decrypted_message || '[Decrypting...]'}</Text>
         <Text style={styles.timestamp}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
       </View>
     );
@@ -103,7 +166,7 @@ export default function DirectMessageChatScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Chat with {receiverUsername} ({receiverRole})</Text>
       </View>
-      {loading ? (
+      {loading || decrypting ? (
         <ActivityIndicator size="large" color="#f9a825" style={{ flex: 1 }} />
       ) : (
         <FlatList
