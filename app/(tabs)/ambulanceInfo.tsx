@@ -13,7 +13,7 @@ export default function AmbulanceInfoScreen() {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.title}>Emergency Response</Text>
+          <Text style={styles.title}>Emergency</Text>
         </View>
 
     <Text style={styles.Info}>Ambulance Info</Text>
