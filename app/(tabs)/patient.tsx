@@ -15,7 +15,7 @@ export default function PatientScreen() {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.title}>Emergency Response</Text>
+          <Text style={styles.title}>Emergency</Text>
         </View>
 
             <Text style={styles.patient}>Insert Patient Info</Text>
