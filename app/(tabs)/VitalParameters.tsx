@@ -13,7 +13,7 @@ export default function ActivePatientScreen() {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.title}>Emergency Response</Text>
+          <Text style={styles.title}>Emergency</Text>
       </View>
 
       <Text style={styles.vp}>Vital Parameters</Text>
