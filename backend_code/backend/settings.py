@@ -75,6 +75,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+AUTH_USER_MODEL = 'users.CustomUser' #Tell Django to use Custom User Model
+
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
