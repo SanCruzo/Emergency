@@ -12,7 +12,7 @@ export default function RescuedPatientScreen() {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.title}>Emergency Response</Text>
+        <Text style={styles.title}>Emergency</Text>
       </View>
 
       <Text style={styles.rescued}>Rescued Patient Info</Text>
