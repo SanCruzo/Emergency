@@ -1,3 +1,4 @@
+# Converts ambulance model to/from JSON for REST API
 from rest_framework import serializers
 from .models import Ambulance
 
