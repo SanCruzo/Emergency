@@ -62,11 +62,14 @@ export default function PatientInfoForm() {
         onValueChange={(itemValue) => setWeight(itemValue)}
         style={styles.picker}
       >
-        <Picker.Item label="Select weight..." value="" />
-        <Picker.Item label="<50 kg" value="<50" />
-        <Picker.Item label="50-70 kg" value="50-70" />
-        <Picker.Item label="70-90 kg" value="70-90" />
-        <Picker.Item label=">90 kg" value=">90" />
+        <Picker.Item label="Select ethnicity..." value="" />
+        <Picker.Item label="Caucasian" value="caucasian" />
+        <Picker.Item label="Hispanic or Latino" value="hispanic" />
+        <Picker.Item label="Black or African descent" value="black" />
+        <Picker.Item label="Asian" value="asian" />
+        <Picker.Item label="Middle Eastern or North African" value="mena" />
+        <Picker.Item label="Indigenous or Native" value="indigenous" />
+        <Picker.Item label="Other / Mixed" value="other" />
       </Picker>
 
       {/* Complexion */}
