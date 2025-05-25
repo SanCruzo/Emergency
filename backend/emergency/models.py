@@ -21,7 +21,9 @@ class Patient(models.Model):
     name = models.CharField(max_length=100, blank=True, null=True)
     symptoms = models.JSONField(default=list, blank=True, null=True)  
     triage_code = models.CharField(max_length=10, choices=TRIAGE_CHOICES, blank=True, null=True)
-    is_active = models.BooleanField(default=True, blank=True, null=True)
+    is_active = models.BooleanField(default=True, blank=True, null=True) #whether this case is active
+    # hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, null=True, related_name='patients')
+    # ambulance = models.ForeignKey(Ambulance, on_delete=models.SET_NULL, null=True, blank=True, related_name='patients')
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     
     #extra infos for patient without ID
