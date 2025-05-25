@@ -8,5 +8,6 @@ urlpatterns = [
     path('api/', include('emergency.urls')),
     path('api/', include('users.urls')),
     path('api/', include('dmessages.urls')),
+    path('api/hospital/', include('hospital.urls')),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

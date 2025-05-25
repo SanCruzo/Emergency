@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'emergency',
     'ambulance',
     'dmessages',
+    'hospital',
 ]
 AUTH_USER_MODEL = 'users.User'
 
@@ -73,20 +74,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Django_config.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# https://docs.djangoproject.com/en/5.2/ref/settinf/settings/#auth-password-validators
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
