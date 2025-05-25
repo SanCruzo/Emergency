@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('emergencies', '0001_initial'),
+        ('emergency', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('encrypted_message', models.TextField()),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('emergency', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='emergencies.patient')),
+                ('emergency', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='emergency.patient')),
                 ('receiver', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='received_messages', to=settings.AUTH_USER_MODEL)),
                 ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sent_messages', to=settings.AUTH_USER_MODEL)),
             ],
