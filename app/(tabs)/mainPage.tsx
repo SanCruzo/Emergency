@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import { getUsername, getRole } from '../utils/auth';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [role, setRole] = useState('');
+
+  useEffect(() => {
+    // Get user information from local storage
+    getUsername().then((val) => setUsername(val || ''));
+    getRole().then((val) => setRole(val || ''));
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -51,8 +60,17 @@ export default function HomeScreen() {
         style={styles.logoutButton}
         onPress={() => router.replace('/')} // Navigate to Login page and clear history
       >
-        <Text style={styles.logoutText}>LOGOUT</Text>
+        <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
+
+      {/* Role and Username */}
+      <View style={styles.userInfoBox}>
+        <Text style={styles.userInfoText}>
+          {username && role
+            ? `Logged in: ${username} (${role === 'ambulance' ? 'Ambulance Staff' : role === 'hospital' ? 'Hospital Staff' : role})`
+            : 'Not logged in'}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -131,5 +149,22 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontWeight: 'bold',
+  },
+  userInfoBox: {
+    position: 'absolute',
+    left: 20,
+    bottom: 26,
+    backgroundColor: '#eee',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 5,
+    minWidth: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  userInfoText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#333',
   },
 });
