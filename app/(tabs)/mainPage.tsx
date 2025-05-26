@@ -39,16 +39,18 @@ export default function HomeScreen() {
           <Text style={styles.buttonText}>Insert Patient</Text>
         </TouchableOpacity>
 
+        {/*
         <TouchableOpacity style={styles.button} onPress={() => router.push('/nearestHospital')}>
           <Text style={styles.buttonText}>Nearest Hospital</Text>
         </TouchableOpacity>
+        */}
 
         <TouchableOpacity style={styles.button} onPress={() => router.push('/ambulanceInfo')}>
           <Text style={styles.buttonText}>Ambulance Info</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.button} onPress={() => router.push('/vital_signs')}>
-          <Text style={styles.buttonText}>Vital Parameters</Text>
+          <Text style={styles.buttonText}>Vital Signs</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.button} onPress={() => router.push('/rescuedPatient')}>
