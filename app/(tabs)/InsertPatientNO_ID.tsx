@@ -9,8 +9,7 @@ export default function PatientInfoForm() {
   const [age, setAge] = useState('');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
-  const [complexion, setComplexion] = useState('');
-  const [hair, setHair] = useState('');
+  const [ethnicity, setEthnicity] = useState('');
 
   return (
     <View style={styles.container}>
@@ -69,11 +68,11 @@ export default function PatientInfoForm() {
         <Picker.Item label=">90 kg" value=">90" />
       </Picker>
 
-      {/* Complexion */}
+      {/* Ethnicity */}
       <Text style={styles.label}>Ethnicity</Text>
       <Picker
-        selectedValue={complexion}
-        onValueChange={(itemValue) => setComplexion(itemValue)}
+        selectedValue={ethnicity}
+        onValueChange={(itemValue) => setEthnicity(itemValue)}
         style={styles.picker}
       >
          <Picker.Item label="Select ethnicity..." value="" />
