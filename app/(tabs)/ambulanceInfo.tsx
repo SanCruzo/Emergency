@@ -49,11 +49,17 @@ export default function AmbulanceInfoScreen() {
 
   // Render a single ambulance item
   const renderAmbulance = ({ item }: { item: Ambulance }) => (
-    <View style={styles.infoTable}>
+    <TouchableOpacity
+      style={styles.infoTable}
+      onPress={() => router.push({
+        pathname: '/editAmbulanceScreen',
+        params: { ambulance: JSON.stringify(item) }
+      })}
+    >
       <Text style={styles.infoText}>Ambulance Plate: {item.plate_number}</Text>
       <Text style={styles.infoText}>Staff: {item.staff}</Text>
       <Text style={styles.infoText}>Location: {item.location_lat}, {item.location_long}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -70,11 +76,6 @@ export default function AmbulanceInfoScreen() {
           </View>
           <Text style={styles.title}>Ambulance Info</Text>
         </View>
-
-        {/* Add ambulance button */}
-        <TouchableOpacity style={styles.addButton} onPress={() => router.push('/addAmbulance')}>
-          <Text style={styles.addButtonText}>ADD AMBULANCE</Text>
-        </TouchableOpacity>
 
         {/* Ambulance list or loading/empty message */}
         <View style={{ flex: 1, width: '100%' }}>
@@ -93,6 +94,9 @@ export default function AmbulanceInfoScreen() {
           )}
         </View>
 
+        {/* Footer line */}
+        <View style={styles.footerLine} />
+
         {/* Bottom bar with user info and logout button */}
         <View style={styles.bottomBarRow}>
           <View style={styles.userInfoBox}>
@@ -102,6 +106,12 @@ export default function AmbulanceInfoScreen() {
                 : 'Not logged in'}
             </Text>
           </View>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => router.push('/addAmbulance')}
+          >
+            <Text style={styles.addButtonText}>ADD AMBULANCE</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.logoutButton}
             onPress={() => router.replace('/')}
@@ -158,40 +168,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     paddingVertical: 10,
   },
-  addButton: {
-    backgroundColor: '#2196F3',
-    borderRadius: 5,
-    paddingVertical: 12,
-    width: 220,
-    alignSelf: 'center',
-    alignItems: 'center',
-    marginBottom: 32,
-    marginTop: 16,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
   infoTable: {
-    width: '100%',
-    padding: 20,
+    width: '96%',
+    padding: 15,
     backgroundColor: '#00B7EB',
     borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   infoText: {
     fontSize: 16,
-    color: '#000',
-    marginBottom: 10,
-    textAlign: 'center',
+    color: '#fff',
+    marginBottom: 8,
   },
-  footerText: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#555',
-    marginTop: 20,
+  footerLine: {
+    position: 'absolute',
+    bottom: 80,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: '#ddd',
   },
   bottomBarRow: {
     position: 'absolute',
@@ -199,9 +194,12 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    paddingTop: 15,
     paddingHorizontal: 20,
+    backgroundColor: '#fff',
+    gap: 10,
   },
   logoutButton: {
     backgroundColor: '#eee',
@@ -211,6 +209,7 @@ const styles = StyleSheet.create({
     minWidth: 100,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 'auto',
   },
   logoutText: {
     fontWeight: 'bold',
@@ -230,5 +229,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     color: '#333',
+  },
+  addButton: {
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 5,
+    minWidth: 150,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 0,
+    marginLeft: 200,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

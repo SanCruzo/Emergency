@@ -40,7 +40,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.button} onPress={() => router.push('/vitalSigns')}>
-          <Text style={{ fontWeight: 'bold' }}>Vital Parameters</Text>
+          <Text style={{ fontWeight: 'bold' }}>Vital Signs</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.button} onPress={() => router.push('/rescuedPatient')}>

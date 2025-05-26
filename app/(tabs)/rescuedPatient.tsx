@@ -18,6 +18,8 @@ type Patient = {
   weight?: string | null;
   complexion?: string | null;
   hair?: string | null;
+  patient_id: string;
+  hasID: boolean;
 };
 
 export default function RescuedPatientScreen() {
@@ -65,26 +67,54 @@ export default function RescuedPatientScreen() {
       }
     >
       <Text style={styles.infoText}>
-        {item.name
-          ? `Name: ${item.name}`
-          : `NO ID - Gender: ${item.gender || '-'}, Age: ${item.age_group || '-'}`}
+        {item.hasID
+          ? `Patient ID: ${item.patient_id}`
+          : `NO ID - Gender: ${item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : '-'}, Age: ${item.age_group || '-'}`}
       </Text>
       {item.triage_code && (
-        <Text style={styles.infoText}>Triage: {item.triage_code}</Text>
+        <Text style={[styles.infoText, { color: getTriageTextColor(item.triage_code) }]}>
+          Triage: {getTriageLabel(item.triage_code)}
+        </Text>
       )}
       {item.symptoms && item.symptoms.length > 0 && (
         <Text style={styles.infoText}>Symptoms: {item.symptoms.join(', ')}</Text>
       )}
-      {!item.name && (
-        <>
-          <Text style={styles.infoText}>Height: {item.height || '-'}</Text>
-          <Text style={styles.infoText}>Weight: {item.weight || '-'}</Text>
-          <Text style={styles.infoText}>Complexion: {item.complexion || '-'}</Text>
-          <Text style={styles.infoText}>Hair: {item.hair || '-'}</Text>
-        </>
-      )}
     </TouchableOpacity>
   );
+
+  const getTriageLabel = (code: string) => {
+    switch (code) {
+      case 'white':
+        return 'White - Not Urgent';
+      case 'green':
+        return 'Green - Minor Urgent';
+      case 'deepskyblue':
+        return 'Light Blue - Deferrable Urgency';
+      case 'orange':
+        return 'Orange - Urgent';
+      case 'red':
+        return 'Red - Major Urgent';
+      default:
+        return code;
+    }
+  };
+
+  const getTriageTextColor = (code: string) => {
+    switch (code) {
+      case 'white':
+        return '#000';
+      case 'green':
+        return '#006400';
+      case 'deepskyblue':
+        return '#00416A';
+      case 'orange':
+        return '#CC5500';
+      case 'red':
+        return '#8B0000';
+      default:
+        return '#000';
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -114,8 +144,9 @@ export default function RescuedPatientScreen() {
           ) : (
             <Text style={styles.infoText}>No rescued patient data found.</Text>
           )}
-
         </View>
+
+        <View style={styles.footerLine} />
 
         <View style={styles.bottomBarRow}>
           <View style={styles.userInfoBox}>
@@ -184,24 +215,24 @@ const styles = StyleSheet.create({
   },
   infoTable: {
     width: '96%',
-    padding: 24,
+    padding: 15,
     backgroundColor: '#00B7EB',
     borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   infoText: {
     fontSize: 16,
-    color: '#000',
-    marginBottom: 6,
-    textAlign: 'center',
+    color: '#fff',
+    marginBottom: 8,
+    textAlign: 'left',
   },
-  footerText: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#555',
-    marginTop: 20,
-    marginBottom: 10,
+  footerLine: {
+    position: 'absolute',
+    bottom: 80,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: '#ddd',
   },
   bottomBarRow: {
     position: 'absolute',
@@ -211,8 +242,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingTop: 15,
     paddingHorizontal: 20,
-    marginTop: 32,
+    backgroundColor: '#fff',
   },
   logoutButton: {
     backgroundColor: '#eee',
