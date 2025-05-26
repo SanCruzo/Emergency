@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS mob_er."user"
     is_active boolean DEFAULT true,
     CONSTRAINT user_pkey PRIMARY KEY (id),
     CONSTRAINT user_email_key UNIQUE (email),
-    CONSTRAINT user_role_check CHECK (role::text = ANY (ARRAY['admin'::character varying, 'responder'::character varying, 'hospital'::character varying]::text[]))
+    CONSTRAINT user_role_check CHECK (role::text = ANY (ARRAY['Admin'::character varying::text, 'Hospital staff'::character varying::text, 'Ambulance staff'::character varying::text]))
 )
 
 TABLESPACE pg_default;
@@ -22,6 +22,7 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS mob_er."user"
     OWNER to "ER";
 
+GRANT ALL ON TABLE mob_er."user" TO "ER";
 
 
 -- Table: mob_er.Livechat
@@ -34,7 +35,7 @@ CREATE TABLE IF NOT EXISTS mob_er."Livechat"
     sender_id uuid NOT NULL,
     receiver_id uuid NOT NULL,
     message text COLLATE pg_catalog."default" NOT NULL,
-    status character varying(10) COLLATE pg_catalog."default" DEFAULT 'sent'::character varying,
+    message_status character varying(10) COLLATE pg_catalog."default" DEFAULT 'sent'::character varying,
     edited_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Livechat_pkey" PRIMARY KEY (id),
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS mob_er."Livechat"
         REFERENCES mob_er."user" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
-    CONSTRAINT "Livechat_status_check" CHECK (status::text = ANY (ARRAY['sent'::character varying, 'delivered'::character varying, 'read'::character varying]::text[]))
+    CONSTRAINT "Livechat_status_check" CHECK (message_status::text = ANY (ARRAY['sent'::character varying::text, 'delivered'::character varying::text, 'read'::character varying::text]))
 )
 
 TABLESPACE pg_default;
@@ -54,29 +55,6 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS mob_er."Livechat"
     OWNER to "ER";
 
--- Table: mob_er.ambulance
-
--- DROP TABLE IF EXISTS mob_er.ambulance;
-
-CREATE TABLE IF NOT EXISTS mob_er.ambulance
-(
-    ambulance_id uuid NOT NULL,
-    lat numeric(9,6) NOT NULL,
-    "long" numeric(9,6) NOT NULL,
-    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    plate_number character varying(20) COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT ambulance_pkey PRIMARY KEY (ambulance_id),
-    CONSTRAINT ambulance_plate_number_key UNIQUE (plate_number),
-    CONSTRAINT ambulance_ambulance_id_fkey FOREIGN KEY (ambulance_id)
-        REFERENCES mob_er."user" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS mob_er.ambulance
-    OWNER to "ER";
 -- Table: mob_er.patient
 
 -- DROP TABLE IF EXISTS mob_er.patient;
@@ -89,6 +67,9 @@ CREATE TABLE IF NOT EXISTS mob_er.patient
     surname character varying(50) COLLATE pg_catalog."default" NOT NULL,
     age integer,
     sex character(1) COLLATE pg_catalog."default",
+    rescue_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    condition text COLLATE pg_catalog."default",
+    treatment text COLLATE pg_catalog."default",
     CONSTRAINT patient_pkey PRIMARY KEY (patientid),
     CONSTRAINT patient_age_check CHECK (age >= 0),
     CONSTRAINT patient_sex_check CHECK (sex = ANY (ARRAY['M'::bpchar, 'F'::bpchar]))
@@ -98,8 +79,7 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS mob_er.patient
     OWNER to "ER";
-
-    -- Table: mob_er.vital_signs
+   -- Table: mob_er.vital_signs
 
 -- DROP TABLE IF EXISTS mob_er.vital_signs;
 
@@ -110,6 +90,8 @@ CREATE TABLE IF NOT EXISTS mob_er.vital_signs
     bloodpressure character varying(20) COLLATE pg_catalog."default",
     temperature numeric(4,2),
     respirationrate integer,
+    oxygen_saturation numeric(5,2),
+    electromyography text COLLATE pg_catalog."default",
     recordedat timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT vital_signs_pkey PRIMARY KEY (patientid),
     CONSTRAINT vital_signs_patientid_fkey FOREIGN KEY (patientid)
