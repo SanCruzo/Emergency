@@ -10,6 +10,7 @@ export default function PatientInfoForm() {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [complexion, setComplexion] = useState('');
+  const [hair, setHair] = useState('');
 
   return (
     <View style={styles.container}>
@@ -84,6 +85,21 @@ export default function PatientInfoForm() {
         <Picker.Item label="Indigenous or Native" value="indigenous" />
         <Picker.Item label="Other / Mixed" value="other" />
       </Picker>
+
+      {/* Hair */}
+      {/*<Text style={styles.label}>Hair</Text>
+      <Picker
+        selectedValue={hair}
+        onValueChange={(itemValue) => setHair(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Select hair color..." value="" />
+        <Picker.Item label="Blonde" value="blonde" />
+        <Picker.Item label="Brown" value="brown" />
+        <Picker.Item label="Red" value="red" />
+        <Picker.Item label="Grey" value="grey" />
+        <Picker.Item label="Bald" value="bald" />
+      </Picker>*/}
 
       {/* Button for patient without ID */}
       <TouchableOpacity
