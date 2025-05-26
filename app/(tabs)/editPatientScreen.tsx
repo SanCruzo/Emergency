@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -15,10 +15,11 @@ const symptomsList = {
 };
 
 const triageColors = [
-  { label: 'White - No triage', value: 'white' },
-  { label: 'Green - Minor', value: 'green' },
-  { label: 'Orange - Moderate', value: 'orange' },
-  { label: 'Red - Major', value: 'red' },
+  { label: 'White - Not Urgent', value: 'white' },
+  { label: 'Green - Minor Urgent', value: 'green' },
+  { label: 'Light Blue - Deferrable Urgency', value: 'deepskyblue' },
+  { label: 'Orange - Urgent', value: 'orange' },
+  { label: 'Red - Major Urgent', value: 'red' },
 ];
 
 export default function EditPatientScreen() {
@@ -26,9 +27,8 @@ export default function EditPatientScreen() {
   const router = useRouter();
   const patient = params.patient ? JSON.parse(params.patient as string) : {};
 
-  const isNoID = !patient.name;
+  const isNoID = !patient.hasID;
 
-  const [name, setName] = useState(patient.name || '');
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
     if (Array.isArray(patient.symptoms)) {
@@ -69,7 +69,6 @@ export default function EditPatientScreen() {
     if (isNoID) {
       body = {
         ...body,
-        name: null,
         gender,
         age_group: ageGroup,
         height,
@@ -87,7 +86,6 @@ export default function EditPatientScreen() {
       });
       body = {
         ...body,
-        name: name || null,
         symptoms: selectedSymptoms,
         triage_code: triageCode,
       };
@@ -115,174 +113,289 @@ export default function EditPatientScreen() {
     setLoading(false);
   };
 
+  const handleDelete = async () => {
+    Alert.alert(
+      'Delete Patient',
+      'Are you sure you want to delete this patient? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              const response = await fetch(
+                `${API_URL}/patients/${patient.id}/`,
+                {
+                  method: 'DELETE',
+                  headers: { 'Content-Type': 'application/json' },
+                }
+              );
+              if (response.ok) {
+                Alert.alert('Success', 'Patient deleted successfully!');
+                router.back();
+              } else {
+                const error = await response.text();
+                Alert.alert('Error', 'Failed to delete patient: ' + error);
+              }
+            } catch (e) {
+              Alert.alert('Error', 'Network error.');
+            }
+            setLoading(false);
+          },
+        },
+      ]
+    );
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Edit Patient</Text>
-      {isNoID ? (
-        <>
-          <Text style={styles.label}>Gender</Text>
-          <Picker
-            selectedValue={gender}
-            onValueChange={setGender}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select gender..." value="" />
-            <Picker.Item label="Male" value="male" />
-            <Picker.Item label="Female" value="female" />
-            <Picker.Item label="Unknown" value="unknown" />
-          </Picker>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* Top bar with logo and header */}
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Edit Patient</Text>
+        </View>
 
-          <Text style={styles.label}>Approximate Age</Text>
-          <Picker
-            selectedValue={ageGroup}
-            onValueChange={setAgeGroup}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select age group..." value="" />
-            <Picker.Item label="Infant" value="infant" />
-            <Picker.Item label="Child" value="child" />
-            <Picker.Item label="Adult" value="adult" />
-            <Picker.Item label="Elderly person" value="elderly" />
-          </Picker>
+        <ScrollView style={styles.content}>
+          <View style={styles.infoCard}>
+            {isNoID ? (
+              <>
+                <Text style={styles.label}>Gender</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={gender}
+                    onValueChange={setGender}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Select gender..." value="" />
+                    <Picker.Item label="Male" value="male" />
+                    <Picker.Item label="Female" value="female" />
+                    <Picker.Item label="Unknown" value="unknown" />
+                  </Picker>
+                </View>
 
-          <Text style={styles.label}>Height</Text>
-          <Picker
-            selectedValue={height}
-            onValueChange={setHeight}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select height..." value="" />
-            <Picker.Item label="<150 cm" value="<150" />
-            <Picker.Item label="150-170 cm" value="150-170" />
-            <Picker.Item label="170-190 cm" value="170-190" />
-            <Picker.Item label=">190 cm" value=">190" />
-          </Picker>
+                <Text style={styles.label}>Approximate Age</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={ageGroup}
+                    onValueChange={setAgeGroup}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Select age group..." value="" />
+                    <Picker.Item label="Infant" value="infant" />
+                    <Picker.Item label="Child" value="child" />
+                    <Picker.Item label="Adult" value="adult" />
+                    <Picker.Item label="Elderly person" value="elderly" />
+                  </Picker>
+                </View>
 
-          <Text style={styles.label}>Weight</Text>
-          <Picker
-            selectedValue={weight}
-            onValueChange={setWeight}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select weight..." value="" />
-            <Picker.Item label="<50 kg" value="<50" />
-            <Picker.Item label="50-70 kg" value="50-70" />
-            <Picker.Item label="70-90 kg" value="70-90" />
-            <Picker.Item label=">90 kg" value=">90" />
-          </Picker>
+                <Text style={styles.label}>Height</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={height}
+                    onValueChange={setHeight}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Select height..." value="" />
+                    <Picker.Item label="<150 cm" value="<150" />
+                    <Picker.Item label="150-170 cm" value="150-170" />
+                    <Picker.Item label="170-190 cm" value="170-190" />
+                    <Picker.Item label=">190 cm" value=">190" />
+                  </Picker>
+                </View>
 
-          <Text style={styles.label}>Complexion</Text>
-          <Picker
-            selectedValue={complexion}
-            onValueChange={setComplexion}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select complexion..." value="" />
-            <Picker.Item label="Light" value="light" />
-            <Picker.Item label="Olive" value="olive" />
-            <Picker.Item label="Dark" value="dark" />
-            <Picker.Item label="Very dark" value="very-dark" />
-          </Picker>
+                <Text style={styles.label}>Weight</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={weight}
+                    onValueChange={setWeight}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Select weight..." value="" />
+                    <Picker.Item label="<50 kg" value="<50" />
+                    <Picker.Item label="50-70 kg" value="50-70" />
+                    <Picker.Item label="70-90 kg" value="70-90" />
+                    <Picker.Item label=">90 kg" value=">90" />
+                  </Picker>
+                </View>
 
-          <Text style={styles.label}>Hair</Text>
-          <Picker
-            selectedValue={hair}
-            onValueChange={setHair}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select hair color..." value="" />
-            <Picker.Item label="Blonde" value="blonde" />
-            <Picker.Item label="Brown" value="brown" />
-            <Picker.Item label="Red" value="red" />
-            <Picker.Item label="Grey" value="grey" />
-            <Picker.Item label="Bald" value="bald" />
-          </Picker>
-        </>
-      ) : (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="Name (optional)"
-            value={name}
-            onChangeText={setName}
-          />
+                <Text style={styles.label}>Complexion</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={complexion}
+                    onValueChange={setComplexion}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Select complexion..." value="" />
+                    <Picker.Item label="Light" value="light" />
+                    <Picker.Item label="Olive" value="olive" />
+                    <Picker.Item label="Dark" value="dark" />
+                    <Picker.Item label="Very dark" value="very-dark" />
+                  </Picker>
+                </View>
 
-          {/* Checkbox groups */}
-          {Object.entries(symptomsList).map(([category, items]) => (
-            <View key={category} style={styles.groupContainer}>
-              <Text style={styles.categoryTitle}>{category}</Text>
-              {items.map((symptom) => {
-                const key = `${category}-${symptom}`;
-                return (
-                  <View key={key} style={styles.checkboxContainer}>
-                    <Checkbox
-                      status={checkedItems[key] ? 'checked' : 'unchecked'}
-                      onPress={() => toggleCheckbox(category, symptom)}
-                    />
-                    <Text style={styles.label}>{symptom}</Text>
-                  </View>
-                );
-              })}
-            </View>
-          ))}
-
-          <Text style={styles.categoryTitle}>Triage Code</Text>
-          <View style={styles.triageOptionsContainer}>
-            {triageColors.map((color) => (
-              <TouchableOpacity
-                key={color.value}
-                style={[
-                  styles.triageOption,
-                  triageCode === color.value && styles.triageOptionSelected,
-                ]}
-                onPress={() => setTriageCode(color.value)}
-              >
-                <View
-                  style={[
-                    styles.triageColorBoxSmall,
-                    { backgroundColor: color.value },
-                  ]}
+                <Text style={styles.label}>Hair</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={hair}
+                    onValueChange={setHair}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Select hair color..." value="" />
+                    <Picker.Item label="Blonde" value="blonde" />
+                    <Picker.Item label="Brown" value="brown" />
+                    <Picker.Item label="Red" value="red" />
+                    <Picker.Item label="Grey" value="grey" />
+                    <Picker.Item label="Bald" value="bald" />
+                  </Picker>
+                </View>
+              </>
+            ) : (
+              <>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Patient ID"
+                  value={patient.patient_id || `${patient.id} (NO ID)`}
+                  editable={false}
                 />
-                <Text style={styles.triageOptionLabel}>{color.label}</Text>
+
+                {/* Checkbox groups */}
+                {Object.entries(symptomsList).map(([category, items]) => (
+                  <View key={category} style={styles.groupContainer}>
+                    <Text style={styles.categoryTitle}>{category}</Text>
+                    {items.map((symptom) => {
+                      const key = `${category}-${symptom}`;
+                      return (
+                        <View key={key} style={styles.checkboxContainer}>
+                          <Checkbox
+                            status={checkedItems[key] ? 'checked' : 'unchecked'}
+                            onPress={() => toggleCheckbox(category, symptom)}
+                          />
+                          <Text style={styles.label}>{symptom}</Text>
+                        </View>
+                      );
+                    })}
+                  </View>
+                ))}
+
+                <Text style={styles.categoryTitle}>Triage Code</Text>
+                <View style={styles.triageOptionsContainer}>
+                  {triageColors.map((color) => (
+                    <TouchableOpacity
+                      key={color.value}
+                      style={[
+                        styles.triageOption,
+                        triageCode === color.value && styles.triageOptionSelected,
+                      ]}
+                      onPress={() => setTriageCode(color.value)}
+                    >
+                      <View
+                        style={[
+                          styles.triageColorBoxSmall,
+                          { backgroundColor: color.value },
+                        ]}
+                      />
+                      <Text style={styles.triageOptionLabel}>{color.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            )}
+
+            <View style={styles.activeContainer}>
+              <Text style={styles.label}>Patient Status:</Text>
+              <TouchableOpacity
+                style={[styles.activeButton, isActive && styles.activeSelected]}
+                onPress={() => setIsActive(true)}
+              >
+                <Text style={[styles.activeText, isActive && styles.activeTextSelected]}>Active</Text>
               </TouchableOpacity>
-            ))}
+              <TouchableOpacity
+                style={[styles.activeButton, !isActive && styles.activeSelected]}
+                onPress={() => setIsActive(false)}
+              >
+                <Text style={[styles.activeText, !isActive && styles.activeTextSelected]}>Passive</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </>
-      )}
 
-      <View style={styles.activeContainer}>
-        <Text style={styles.label}>Is Active?</Text>
-        <TouchableOpacity
-          style={[styles.activeButton, isActive && styles.activeSelected]}
-          onPress={() => setIsActive(true)}
-        >
-          <Text style={styles.activeText}>Active</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.activeButton, !isActive && styles.activeSelected]}
-          onPress={() => setIsActive(false)}
-        >
-          <Text style={styles.activeText}>Passive</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.updateButton}
+            onPress={handleUpdate}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? 'Updating...' : 'Update Patient'}
+            </Text>
+          </TouchableOpacity>
+
+
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleDelete}
+            disabled={loading}
+          >
+            <Text style={styles.deleteButtonText}>Delete Patient</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
-
-      <Button title={loading ? 'Updating...' : 'Update Patient'} onPress={handleUpdate} disabled={loading} />
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
-    paddingVertical: 40,
+    flex: 1,
+    flexDirection: 'column',
     paddingHorizontal: 20,
-    justifyContent: 'center',
+    paddingVertical: 30,
+    backgroundColor: '#fff',
+  },
+  topBar: {
+    flexDirection: 'row',
+    backgroundColor: '#00FFFF',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    height: 80,
+    width: '100%',
+    borderRadius: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 30,
+  },
+  backButton: {
+    padding: 10,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#000',
+    fontWeight: '600',
+  },
+  content: {
+    flex: 1,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
+    color: '#000',
+    marginRight: 10,
+  },
+  infoCard: {
+    backgroundColor: '#00B7EB',
+    borderRadius: 10,
+    padding: 20,
+    marginVertical: 20,
   },
   input: {
     borderWidth: 1,
@@ -291,6 +404,18 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
+    width: '100%',
+    backgroundColor: '#fff',
+  },
+  pickerContainer: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#90caf9',
+    borderRadius: 8,
+    marginTop: 5,
+    marginBottom: 15,
+  },
+  picker: {
     width: '100%',
   },
   groupContainer: {
@@ -302,16 +427,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
-    color: '#333',
+    color: '#fff',
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 5,
     paddingLeft: 20,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 8,
   },
   label: {
     fontSize: 16,
+    color: '#333',
+    marginBottom: 5,
   },
   triageOptionsContainer: {
     width: '100%',
@@ -323,7 +453,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#fff',
     borderRadius: 8,
     marginBottom: 10,
     backgroundColor: '#fff',
@@ -345,30 +475,60 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginTop: 20,
     gap: 10,
   },
   activeButton: {
     borderWidth: 1,
-    borderColor: '#90caf9',
+    borderColor: '#fff',
     borderRadius: 8,
     padding: 10,
     marginHorizontal: 5,
     backgroundColor: '#fff',
+    minWidth: 100,
+    alignItems: 'center',
   },
   activeSelected: {
-    backgroundColor: '#90caf9',
+    backgroundColor: '#007bff',
+    borderColor: '#007bff',
   },
   activeText: {
     fontWeight: 'bold',
     color: '#333',
   },
-  picker: {
-    backgroundColor: '#fff',
-    marginTop: 5,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    width: '100%',
+  activeTextSelected: {
+    color: '#fff',
+  },
+  updateButton: {
+    backgroundColor: '#00B7EB',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  deleteButton: {
+    backgroundColor: '#ff4444',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 15,
+    marginBottom: 40,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  vitalSignsButton: {
+    backgroundColor: '#00B7EB',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 15,
   },
 });
