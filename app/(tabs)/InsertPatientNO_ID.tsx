@@ -62,7 +62,21 @@ export default function PatientInfoForm() {
         onValueChange={(itemValue) => setWeight(itemValue)}
         style={styles.picker}
       >
-        <Picker.Item label="Select ethnicity..." value="" />
+        <Picker.Item label="Select weight..." value="" />
+        <Picker.Item label="<50 kg" value="<50" />
+        <Picker.Item label="50-70 kg" value="50-70" />
+        <Picker.Item label="70-90 kg" value="70-90" />
+        <Picker.Item label=">90 kg" value=">90" />
+      </Picker>
+
+      {/* Complexion */}
+      <Text style={styles.label}>Ethnicity</Text>
+      <Picker
+        selectedValue={complexion}
+        onValueChange={(itemValue) => setComplexion(itemValue)}
+        style={styles.picker}
+      >
+         <Picker.Item label="Select ethnicity..." value="" />
         <Picker.Item label="Caucasian" value="caucasian" />
         <Picker.Item label="Hispanic or Latino" value="hispanic" />
         <Picker.Item label="Black or African descent" value="black" />
@@ -70,20 +84,6 @@ export default function PatientInfoForm() {
         <Picker.Item label="Middle Eastern or North African" value="mena" />
         <Picker.Item label="Indigenous or Native" value="indigenous" />
         <Picker.Item label="Other / Mixed" value="other" />
-      </Picker>
-
-      {/* Complexion */}
-      <Text style={styles.label}>Complexion</Text>
-      <Picker
-        selectedValue={complexion}
-        onValueChange={(itemValue) => setComplexion(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Select complexion..." value="" />
-        <Picker.Item label="Light" value="light" />
-        <Picker.Item label="Olive" value="olive" />
-        <Picker.Item label="Dark" value="dark" />
-        <Picker.Item label="Very dark" value="very-dark" />
       </Picker>
 
       {/* Hair */}
@@ -106,7 +106,7 @@ export default function PatientInfoForm() {
         style={styles.button}
         onPress={() => router.push('/InsertPatient')}
       >
-        <Text style={styles.buttonText}>Insert Patient</Text>
+        <Text style={styles.buttonText}>GO TO INSERT THE PATIENT</Text>
       </TouchableOpacity>
 
     </View>
@@ -133,14 +133,17 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   button: {
-    backgroundColor: '#00FFFF',
-    padding: 10,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
     borderRadius: 5,
-    alignItems: 'center',
-    marginTop: 20,
+    width: '100%',
+    borderColor: 'black',
+    borderWidth: 1,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
