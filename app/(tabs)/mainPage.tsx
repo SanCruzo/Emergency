@@ -11,7 +11,7 @@ export default function HomeScreen() {
       <View style={styles.topBar}>
         <View style={styles.logoPlaceholder}>
           <Image
-            source={require('../../assets/images/logo.png')}
+            source={require('../../assets/logo.png')}
             style={styles.logoImage}
             resizeMode="contain"
           />
@@ -21,49 +21,30 @@ export default function HomeScreen() {
 
       {/* Main Buttons */}
       <View style={styles.buttonGrid}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/patient')}
-        >
-          <Text>Insert Patient</Text>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/patient')}>
+          <Text style={{ fontWeight: 'bold' }}>Insert Patient</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/nearestHospital')} 
-        >
-          <Text>Nearest Hospital</Text>
+
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/ambulanceInfo')}>
+          <Text style={{ fontWeight: 'bold' }}>Ambulance Info</Text>
         </TouchableOpacity>
 
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/ambulanceInfo')} // Navigate to Ambulance Info page
->
-  <Text>Ambulance Info</Text>
-</TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/vitalSigns')}>
+          <Text style={{ fontWeight: 'bold' }}>Vital Parameters</Text>
+        </TouchableOpacity>
 
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/activePatient')} // Navigate to Active Patient Info page
->
-  <Text>Active Patient Info</Text>
-</TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/rescuedPatient')}>
+          <Text style={{ fontWeight: 'bold' }}>Rescued Patient Info</Text>
+        </TouchableOpacity>
 
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/rescuedPatient')} // Navigate to Rescued Patient Info page
->
-  <Text>Rescued Patient Info</Text>
-</TouchableOpacity>
-
-<TouchableOpacity
-  style={styles.button}
-  onPress={() => router.push('/directMessageUsers')}
->
-  <Text>Direct Message</Text>
-</TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/directMessageUsers')}>
+          <Text style={{ fontWeight: 'bold' }}>Direct Message</Text>
+        </TouchableOpacity>
+        
 
       </View>
+
 
       {/* Exit Button */}
       <TouchableOpacity
@@ -86,24 +67,42 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   topBar: {
+      flexDirection: 'row',
+      backgroundColor: '#00FFFF',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      height: 100,
+      width: '100%',
+      borderRadius: 15,
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+    },
+  bottomBar: {
     flexDirection: 'row',
+    backgroundColor: '#fff',
     justifyContent: 'space-between',
     alignItems: 'center',
+    height: 100,
+    borderRadius: 15,
+    paddingHorizontal: 10,
   },
   logoPlaceholder: {
     width: 100,
     height: 50,
-    borderRadius: 25,
-    backgroundColor: '#eee',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#eee',
+    borderRadius: 25,
+    overflow: 'hidden',
   },
-  logoText: {
-    fontWeight: 'bold',
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     fontSize: 24,
     fontWeight: '600',
+    paddingVertical: 10,
   },
   buttonGrid: {
     flexDirection: 'row',
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   button: {
-    backgroundColor: '#f9a825',
+    backgroundColor: '#00B7EB',
     width: 320,
     height: 100,
     borderRadius: 15,
@@ -129,10 +128,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 5,
     marginTop: 20,
-  },
-  logoImage: {
-    width: '100%',
-    height: '100%',
   },
   logoutText: {
     fontWeight: 'bold',
