@@ -41,6 +41,10 @@ export default function HomeScreen() {
           <Text style={{ fontWeight: 'bold' }}>Rescued Patient Info</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/chat')}>
+          <Text style={styles.buttonText}>Hospital Chat</Text>
+        </TouchableOpacity>
+
         {/*
         <TouchableOpacity style={styles.button} onPress={() => router.push('/multimedia')}>
           <Text style={{ fontWeight: 'bold' }}>Multimedia</Text>
