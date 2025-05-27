@@ -11,6 +11,8 @@ export default function HomeScreen() {
     Roboto_700Bold,
   });
 
+  const ctrl = 'h'; // control variable ('amb' or 'h')
+
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -35,43 +37,67 @@ export default function HomeScreen() {
 
       {/* Main Buttons */}
       <View style={styles.buttonGrid}>
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/patient')}>
-          <Text style={styles.buttonText}>Insert Patient</Text>
-        </TouchableOpacity>
+        {ctrl === 'amb' && (
+          <>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/patient')}>
+              <Text style={styles.buttonText}>Insert Patient</Text>
+            </TouchableOpacity>
 
-        {/*
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/nearestHospital')}>
-          <Text style={styles.buttonText}>Nearest Hospital</Text>
-        </TouchableOpacity>
-        */}
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/ambulanceInfo')}>
+              <Text style={styles.buttonText}>Ambulance Info</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/ambulanceInfo')}>
-          <Text style={styles.buttonText}>Ambulance Info</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/vital_signs')}>
+              <Text style={styles.buttonText}>Vital Signs</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/vital_signs')}>
-          <Text style={styles.buttonText}>Vital Signs</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/rescuedPatient')}>
+              <Text style={styles.buttonText}>Rescued Patient Info</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/rescuedPatient')}>
-          <Text style={styles.buttonText}>Rescued Patient Info</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/chat')}>
+              <Text style={styles.buttonText}>Hospital Chat</Text>
+            </TouchableOpacity>
+          </>
+        )}
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/chat')}>
-          <Text style={styles.buttonText}>Hospital Chat</Text>
-        </TouchableOpacity>
+        {ctrl === 'h' && (
+          <>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/chat')}>
+              <Text style={styles.buttonText}>Ambulance Chat</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/patient_overview')}>
+              <Text style={styles.buttonText}>Patient Overview</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       {/* Bottom Bar */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Logged user: John Doe</Text>
-        </TouchableOpacity>
+      {ctrl === 'amb' && (
+        <View style={styles.bottomBar}>
+          <TouchableOpacity style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Logged user: John Doe (Ambulance)</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.logoutButton}>
-          <Text style={styles.logoutText}>LOGOUT</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.logoutButton}>
+            <Text style={styles.logoutText}>LOGOUT</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {ctrl === 'h' && (
+              <View style={styles.bottomBar}>
+                <TouchableOpacity style={styles.logoutButton}>
+                  <Text style={styles.logoutText}>Logged user: Jane Doe (Hospital)</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.logoutButton}>
+                  <Text style={styles.logoutText}>LOGOUT</Text>
+                </TouchableOpacity>
+              </View>
+            )}
     </View>
   );
 }
