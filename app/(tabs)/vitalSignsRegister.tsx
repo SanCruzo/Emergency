@@ -65,10 +65,10 @@ export default function VitalSignsRegisterScreen() {
       });
 
       // Debug response information
-      console.log('Debug - Response Status:', response.status);
+
       const responseText = await response.text();
       setResponseInfo(`Status: ${response.status}\nResponse: ${responseText}`);
-      console.log('Debug - Response Text:', responseText);
+
 
       if (response.ok) {
         Alert.alert('Success', 'Patient added successfully!', [
