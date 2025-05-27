@@ -121,7 +121,11 @@ export default function RescuedPatientScreen() {
             Triage: {getTriageLabel(item.triage_code)}
           </Text>
           <Text style={styles.dateText}>
-            Added: {item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}
+            Added: {item.created_at ? new Date(item.created_at).toLocaleDateString('tr-TR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            }) : '-'}
           </Text>
         </View>
       )}

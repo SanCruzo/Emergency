@@ -74,7 +74,7 @@ export default function VitalSignsRegisterScreen() {
         Alert.alert('Success', 'Patient added successfully!', [
           {
             text: 'OK',
-            onPress: () => router.push('/vitalSigns')
+            onPress: () => router.push('/mainPage')
           }
         ]);
       } else {

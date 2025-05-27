@@ -12,8 +12,6 @@ export default function InsertPatientNO_IDScreen() {
   const [ageGroup, setAgeGroup] = useState('');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
-  const [complexion, setComplexion] = useState('');
-  const [hair, setHair] = useState('');
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -30,8 +28,8 @@ export default function InsertPatientNO_IDScreen() {
   }, []);
 
   const handleAdd = async () => {
-    if (!gender || !ageGroup || !height || !weight || !complexion || !hair) {
-      Alert.alert('Error', 'Please fill all required fields.');
+    if (!gender || !ageGroup) {
+      Alert.alert('Error', 'Please fill in gender and approximate age.');
       return;
     }
     setLoading(true);
@@ -61,8 +59,6 @@ export default function InsertPatientNO_IDScreen() {
           approximate_age: ageGroup,
           height,
           weight,
-          complexion,
-          hair,
           is_active: true,
         }),
       });
@@ -141,7 +137,7 @@ export default function InsertPatientNO_IDScreen() {
           </View>
 
           {/* Height */}
-          <Text style={styles.label}>Height</Text>
+          <Text style={styles.label}>Height (Optional)</Text>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={height}
@@ -157,7 +153,7 @@ export default function InsertPatientNO_IDScreen() {
           </View>
 
           {/* Weight */}
-          <Text style={styles.label}>Weight</Text>
+          <Text style={styles.label}>Weight (Optional)</Text>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={weight}
@@ -171,8 +167,6 @@ export default function InsertPatientNO_IDScreen() {
               <Picker.Item label=">90 kg" value=">90" />
             </Picker>
           </View>
-
-
 
           <TouchableOpacity
             style={styles.nextButton}

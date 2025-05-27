@@ -22,7 +22,10 @@ export default function DirectMessageUsersScreen() {
     // Get current user info
     getUserId().then(setCurrentUserId);
     getUsername().then((val) => setUsername(val || ''));
-    getRole().then((val) => setUserRole(val || ''));
+    getRole().then((val) => {
+      console.log('Role from getRole():', val);
+      setUserRole(val || '');
+    });
   }, []);
 
   useEffect(() => {
@@ -51,22 +54,9 @@ export default function DirectMessageUsersScreen() {
         }
 
         const data = await response.json();
-        let filtered = data;
         
-        // Filter out current user
-        if (currentUserId) {
-          filtered = filtered.filter((u: User) => u.id !== currentUserId);
-        }
-
-        // If user is ambulance staff, show only hospital staff
-        // If user is hospital staff, show only ambulance staff
-        // Admin can see all users
-        if (userRole === 'ambulance') {
-          filtered = filtered.filter((u: User) => u.role === 'hospital');
-        } else if (userRole === 'hospital') {
-          filtered = filtered.filter((u: User) => u.role === 'ambulance');
-        }
-
+        // Only filter out the current user, show all other users regardless of role
+        const filtered = currentUserId ? data.filter((u: User) => u.id !== currentUserId) : data;
         setUsers(filtered);
       } catch (e) {
         Alert.alert('Error', 'Failed to load users list');
@@ -74,10 +64,16 @@ export default function DirectMessageUsersScreen() {
       }
       setLoading(false);
     };
+
     if (currentUserId !== null) {
       fetchUsers();
     }
-  }, [currentUserId, userRole]);
+  }, [currentUserId]);
+
+  // Add debug info in render
+  useEffect(() => {
+    console.log('Component mounted with role:', userRole);
+  }, [userRole]);
 
   const renderItem = ({ item }: { item: User }) => {
     let displayRole = item.role;
@@ -113,13 +109,19 @@ export default function DirectMessageUsersScreen() {
         <View style={styles.content}>
           {loading ? (
             <ActivityIndicator size="large" color="#00B7EB" />
-          ) : (
+          ) : users.length > 0 ? (
             <FlatList
               data={users}
               keyExtractor={(item) => item.id}
               renderItem={renderItem}
               contentContainerStyle={{ paddingBottom: 120 }}
             />
+          ) : (
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>
+                No other users found in the system.
+              </Text>
+            </View>
           )}
         </View>
 
@@ -248,5 +250,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     color: '#333',
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 24,
   },
 }); 

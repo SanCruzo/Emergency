@@ -16,8 +16,8 @@ class UserViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Only return active users with ambulance role
-        return User.objects.filter(is_active=True, role='ambulance')
+        # Return all active users except the current user
+        return User.objects.filter(is_active=True).exclude(id=self.request.user.id)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

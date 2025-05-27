@@ -55,8 +55,6 @@ export default function EditPatientScreen() {
   const [ageGroup, setAgeGroup] = useState(patient.approximate_age || '');
   const [height, setHeight] = useState(patient.height || '');
   const [weight, setWeight] = useState(patient.weight || '');
-  const [complexion, setComplexion] = useState(patient.complexion || '');
-  const [hair, setHair] = useState(patient.hair || '');
 
   const [loading, setLoading] = useState(false);
 
@@ -80,8 +78,6 @@ export default function EditPatientScreen() {
         approximate_age: ageGroup,
         height,
         weight,
-        complexion,
-        hair,
       };
     } else {
       const selectedSymptoms: string[] = [];
