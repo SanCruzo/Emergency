@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 class PatientViewSet(ModelViewSet):
     serializer_class = PatientSerializer
+    permission_classes = [IsAuthenticated]
     #Allow ambulance staff to create and edit, while hospital staff can only read
     def get_queryset(self):
         user = self.request.user
