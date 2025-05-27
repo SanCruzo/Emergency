@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { API_URL } from '../config';
+import { getAccessToken } from '../utils/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function VitalSignsRegisterScreen() {
   const router = useRouter();
@@ -11,8 +13,24 @@ export default function VitalSignsRegisterScreen() {
   const [oxygenSaturation, setOxygenSaturation] = useState('');
   const [electromyography, setElectromyography] = useState('');
   const [loading, setLoading] = useState(false);
+  // Debug states
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [responseInfo, setResponseInfo] = useState<string>('');
+
+  // Load debug info when component mounts
+  useEffect(() => {
+    const loadDebugInfo = async () => {
+      const token = await getAccessToken();
+      const role = await AsyncStorage.getItem('role');
+      setAccessToken(token);
+      setUserRole(role);
+    };
+    loadDebugInfo();
+  }, []);
 
   const handleSave = async () => {
+    // Validate required fields
     if (!bloodPressure || !heartRate || !oxygenSaturation || !electromyography) {
       Alert.alert('Error', 'Please fill in all vital signs.');
       return;
@@ -20,9 +38,24 @@ export default function VitalSignsRegisterScreen() {
 
     setLoading(true);
     try {
+      // Get authentication token
+      const token = await getAccessToken();
+      const role = await AsyncStorage.getItem('role');
+      setAccessToken(token);
+      setUserRole(role);
+
+      if (!token) {
+        Alert.alert('Error', 'You are not logged in');
+        router.push('/');
+        return;
+      }
+
       const response = await fetch(`${API_URL}/patients/${patientId}/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Add authentication token
+        },
         body: JSON.stringify({
           blood_pressure: bloodPressure,
           heart_rate: parseInt(heartRate),
@@ -30,6 +63,12 @@ export default function VitalSignsRegisterScreen() {
           electromyography: electromyography,
         }),
       });
+
+      // Debug response information
+
+      const responseText = await response.text();
+      setResponseInfo(`Status: ${response.status}\nResponse: ${responseText}`);
+
 
       if (response.ok) {
         Alert.alert('Success', 'Patient added successfully!', [
@@ -39,10 +78,15 @@ export default function VitalSignsRegisterScreen() {
           }
         ]);
       } else {
-        const error = await response.text();
-        Alert.alert('Error', 'Failed to update vital signs: ' + error);
+        Alert.alert('Error', `Failed to update vital signs: ${responseText}`);
       }
-    } catch (e) {
+    } catch (error: unknown) {
+      console.error('Debug - Error:', error);
+      if (error instanceof Error) {
+        setResponseInfo(`Error: ${error.message}`);
+      } else {
+        setResponseInfo('An unknown error occurred');
+      }
       Alert.alert('Error', 'Network error.');
     }
     setLoading(false);
@@ -51,7 +95,7 @@ export default function VitalSignsRegisterScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Top bar with logo and header */}
+        {/* Top Navigation Bar */}
         <View style={styles.topBar}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={styles.backButtonText}>← Back</Text>

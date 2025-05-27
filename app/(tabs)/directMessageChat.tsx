@@ -155,8 +155,12 @@ export default function DirectMessageChatScreen() {
     const isMine = item.sender === currentUserId;
     return (
       <View style={[styles.messageBubble, isMine ? styles.myMessage : styles.theirMessage]}>
-        <Text style={styles.messageText}>{item.decrypted_message || '[Decrypting...]'}</Text>
-        <Text style={styles.timestamp}>{new Date(item.timestamp).toLocaleTimeString()}</Text>
+        <Text style={[styles.messageText, isMine ? styles.myMessageText : styles.theirMessageText]}>
+          {item.decrypted_message || '[Decrypting...]'}
+        </Text>
+        <Text style={[styles.timestamp, isMine ? styles.myTimestamp : styles.theirTimestamp]}>
+          {new Date(item.timestamp).toLocaleTimeString()}
+        </Text>
       </View>
     );
   };
@@ -227,19 +231,29 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   theirMessage: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#E8E8E8',
     alignSelf: 'flex-start',
   },
   messageText: {
     fontSize: 16,
+  },
+  myMessageText: {
     color: '#fff',
+  },
+  theirMessageText: {
+    color: '#333',
   },
   timestamp: {
     fontSize: 10,
-    color: '#fff',
     marginTop: 4,
     textAlign: 'right',
     opacity: 0.8,
+  },
+  myTimestamp: {
+    color: '#fff',
+  },
+  theirTimestamp: {
+    color: '#666',
   },
   inputContainer: {
     flexDirection: 'row',

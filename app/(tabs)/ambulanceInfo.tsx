@@ -1,17 +1,22 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, FlatList, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, FlatList, SafeAreaView, Alert } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { getUsername, getRole } from '../utils/auth';
+import { getUsername, getRole, getAccessToken } from '../utils/auth';
 import { API_URL } from '../config';
 
 // Ambulance type definition
 type Ambulance = {
   id: number;
   plate_number: string;
-  staff: string;
+  staff: string[];  // Updated type to reflect actual data structure
   location_lat: number;
   location_long: number;
   created_at: string;
+};
+
+type StaffMember = {
+  id: string;
+  username: string;
 };
 
 export default function AmbulanceInfoScreen() {
@@ -19,6 +24,7 @@ export default function AmbulanceInfoScreen() {
   const [username, setUsername] = useState('');
   const [role, setRole] = useState('');
   const [ambulances, setAmbulances] = useState<Ambulance[]>([]);
+  const [staffMembers, setStaffMembers] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   // Fetch user info from local storage
@@ -27,13 +33,57 @@ export default function AmbulanceInfoScreen() {
     getRole().then((val) => setRole(val || ''));
   }, []);
 
-  // Fetch ambulance data from backend
+  // Add new function to fetch staff details
+  const fetchStaffDetails = async (staffIds: string[]) => {
+    try {
+      const token = await getAccessToken();
+      if (!token) return;
+
+      const uniqueIds = [...new Set(staffIds)];
+      const staffDetails: Record<string, string> = {};
+
+      for (const id of uniqueIds) {
+        const response = await fetch(`${API_URL}/users/${id}/`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (response.ok) {
+          const data: StaffMember = await response.json();
+          staffDetails[id] = data.username;
+        }
+      }
+      setStaffMembers(staffDetails);
+    } catch (error) {
+      console.error('Error fetching staff details:', error);
+    }
+  };
+
+  // Update fetchAmbulances to also fetch staff details
   const fetchAmbulances = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/ambulances/`);
+      const token = await getAccessToken();
+      if (!token) {
+        Alert.alert('Error', 'You are not logged in');
+        router.push('/');
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/ambulances/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       const data = await res.json();
       setAmbulances(data);
+      // Collect all staff IDs and fetch their details
+      const allStaffIds = data.flatMap((ambulance: { staff?: string[] }) => ambulance.staff || []);
+      if (allStaffIds.length > 0) {
+        await fetchStaffDetails(allStaffIds);
+      }
     } catch (e) {
       setAmbulances([]);
     }
@@ -57,7 +107,11 @@ export default function AmbulanceInfoScreen() {
       })}
     >
       <Text style={styles.infoText}>Ambulance Plate: {item.plate_number}</Text>
-      <Text style={styles.infoText}>Staff: {item.staff}</Text>
+      <Text style={styles.infoText}>
+        Staff: {Array.isArray(item.staff) && item.staff.length > 0
+          ? item.staff.map(staffId => staffMembers[staffId] || 'Loading...').join(', ')
+          : 'No staff assigned'}
+      </Text>
       <Text style={styles.infoText}>Location: {item.location_lat}, {item.location_long}</Text>
     </TouchableOpacity>
   );

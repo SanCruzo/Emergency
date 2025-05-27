@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Image, SafeAreaView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { API_URL } from '../config';
+import { getAccessToken } from '../utils/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function InsertPatientNO_IDScreen() {
   const router = useRouter();
@@ -13,6 +15,19 @@ export default function InsertPatientNO_IDScreen() {
   const [complexion, setComplexion] = useState('');
   const [hair, setHair] = useState('');
   const [loading, setLoading] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [responseInfo, setResponseInfo] = useState<string>('');
+
+  useEffect(() => {
+    const loadDebugInfo = async () => {
+      const token = await getAccessToken();
+      const role = await AsyncStorage.getItem('role');
+      setAccessToken(token);
+      setUserRole(role);
+    };
+    loadDebugInfo();
+  }, []);
 
   const handleAdd = async () => {
     if (!gender || !ageGroup || !height || !weight || !complexion || !hair) {
@@ -21,9 +36,25 @@ export default function InsertPatientNO_IDScreen() {
     }
     setLoading(true);
     try {
+      const token = await getAccessToken();
+      const role = await AsyncStorage.getItem('role');
+      setAccessToken(token);
+      setUserRole(role);
+      console.log('Debug - User Role:', role);
+      console.log('Debug - Access Token:', token);
+
+      if (!token) {
+        Alert.alert('Error', 'You are not logged in');
+        router.push('/');
+        return;
+      }
+
       const response = await fetch(`${API_URL}/patients/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           hasID: false,
           gender,
@@ -35,17 +66,28 @@ export default function InsertPatientNO_IDScreen() {
           is_active: true,
         }),
       });
+
+      console.log('Debug - Response Status:', response.status);
+      const responseText = await response.text();
+      setResponseInfo(`Status: ${response.status}\nResponse: ${responseText}`);
+      console.log('Debug - Response Text:', responseText);
+
       if (response.ok) {
-        const data = await response.json();
+        const data = JSON.parse(responseText);
         router.push({
           pathname: '/vitalSignsRegister',
           params: { patientId: data.id }
         });
       } else {
-        const error = await response.text();
-        Alert.alert('Error', 'Failed to add patient: ' + error);
+        Alert.alert('Error', `Failed to add patient: ${responseText}`);
       }
-    } catch (e) {
+    } catch (error: unknown) {
+      console.error('Debug - Error:', error);
+      if (error instanceof Error) {
+        setResponseInfo(`Error: ${error.message}`);
+      } else {
+        setResponseInfo('An unknown error occurred');
+      }
       Alert.alert('Error', 'Network error.');
     }
     setLoading(false);
@@ -251,5 +293,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  debugContainer: {
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    margin: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  debugTitle: {
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#333',
+  },
+  debugText: {
+    color: '#666',
+    marginBottom: 3,
   },
 });
