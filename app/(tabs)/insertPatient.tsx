@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, Alert, ScrollView, TouchableOpacity,
 import { Checkbox } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { API_URL } from '../config';
+import { getAccessToken } from '../utils/auth';
 
 const symptomsList = {
   Respiratory: ['Dyspnea', 'Rales', 'Cough', 'Cyanosis', 'Tachypnea'],
@@ -56,9 +57,20 @@ export default function AddPatientScreen() {
     });
 
     try {
+      // Get the access token
+      const accessToken = await getAccessToken();
+      if (!accessToken) {
+        Alert.alert('Error', 'You are not logged in');
+        router.push('/');
+        return;
+      }
+
       const response = await fetch(`${API_URL}/patients/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
         body: JSON.stringify({
           patient_id: patientId,
           hasID: true,

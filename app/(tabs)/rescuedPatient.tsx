@@ -1,9 +1,9 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, FlatList, TouchableOpacity, Image, SafeAreaView, Alert } from 'react-native';
 import { useFocusEffect, } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { API_URL } from '../config';
-import { getUsername, getRole } from '../utils/auth';
+import { getUsername, getRole, getAccessToken } from '../utils/auth';
 
 type Patient = {
   id: number;
@@ -37,7 +37,19 @@ export default function RescuedPatientScreen() {
   const fetchPatients = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/patients/`);
+      const token = await getAccessToken();
+      if (!token) {
+        Alert.alert('Error', 'You are not logged in');
+        router.push('/');
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/patients/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       const data = await res.json();
       setPatients(data.filter((p: Patient) => !p.is_active));
     } catch (e) {

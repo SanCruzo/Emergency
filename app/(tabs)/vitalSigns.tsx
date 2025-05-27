@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import { getUsername, getRole } from '../utils/auth';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { getUsername, getRole, getAccessToken } from '../utils/auth';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { API_URL } from '../config';
 
@@ -31,7 +31,20 @@ export default function VitalSignsScreen() {
   const fetchPatients = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/patients/`);
+      const token = await getAccessToken();
+      if (!token) {
+        Alert.alert('Error', 'You are not logged in');
+        router.push('/');
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/patients/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
       if (response.ok) {
         const data = await response.json();
         // Filter only active patients
@@ -53,14 +66,28 @@ export default function VitalSignsScreen() {
     }, [])
   );
 
-  const handlePatientPress = (patient: Patient) => {
+  const handlePatientPress = async (patient: Patient) => {
+    const token = await getAccessToken();
+    if (!token) {
+      Alert.alert('Error', 'You are not logged in');
+      router.push('/');
+      return;
+    }
+    
     router.push({
       pathname: '/editPatientScreen',
       params: { patient: JSON.stringify(patient) }
     });
   };
 
-  const handleVitalSignsEdit = (patient: Patient) => {
+  const handleVitalSignsEdit = async (patient: Patient) => {
+    const token = await getAccessToken();
+    if (!token) {
+      Alert.alert('Error', 'You are not logged in');
+      router.push('/');
+      return;
+    }
+
     router.push({
       pathname: '/editVitalSigns',
       params: { patient: JSON.stringify(patient) }

@@ -24,7 +24,7 @@ class Patient(models.Model):
 
     patient_id = models.CharField(max_length=100, blank=True, null=True)
     hasID = models.BooleanField(default=False)  # True if patient has ID, False if system generated
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=True)
     symptoms = models.JSONField(default=list, blank=True, null=True)  
     triage_code = models.CharField(max_length=15, choices=TRIAGE_CHOICES, blank=True, null=True)
     is_active = models.BooleanField(default=True, blank=True, null=True) #whether this case is active

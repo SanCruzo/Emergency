@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { API_URL } from '../config';
+import { getAccessToken } from '../utils/auth';
 
 export default function EditVitalSignsScreen() {
   const router = useRouter();
@@ -23,9 +24,19 @@ export default function EditVitalSignsScreen() {
 
     setLoading(true);
     try {
+      const token = await getAccessToken();
+      if (!token) {
+        Alert.alert('Error', 'You are not logged in');
+        router.push('/');
+        return;
+      }
+
       const response = await fetch(`${API_URL}/patients/${patient.id}/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           blood_pressure: bloodPressure,
           heart_rate: parseInt(heartRate),

@@ -4,6 +4,7 @@ import { Checkbox } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { API_URL } from '../config';
+import { getAccessToken } from '../utils/auth';
 
 const symptomsList = {
   Respiratory: ['Dyspnea', 'Rales', 'Cough', 'Cyanosis', 'Tachypnea'],
@@ -92,11 +93,21 @@ export default function EditPatientScreen() {
     }
 
     try {
+      const token = await getAccessToken();
+      if (!token) {
+        Alert.alert('Error', 'You are not logged in');
+        router.push('/');
+        return;
+      }
+
       const response = await fetch(
         `${API_URL}/patients/${patient.id}/`,
         {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(body),
         }
       );
@@ -128,11 +139,21 @@ export default function EditPatientScreen() {
           onPress: async () => {
             setLoading(true);
             try {
+              const token = await getAccessToken();
+              if (!token) {
+                Alert.alert('Error', 'You are not logged in');
+                router.push('/');
+                return;
+              }
+
               const response = await fetch(
                 `${API_URL}/patients/${patient.id}/`,
                 {
                   method: 'DELETE',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
                 }
               );
               if (response.ok) {
