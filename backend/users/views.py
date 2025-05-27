@@ -54,6 +54,7 @@ def verify_login(request):
     user.save()
     
     refresh = RefreshToken.for_user(user)
+    #frontend has access to role immediatly after login
     return Response({
         'message': 'Login successful',
         'refresh': str(refresh),
