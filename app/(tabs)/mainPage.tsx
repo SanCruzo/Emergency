@@ -25,7 +25,7 @@ export default function HomeScreen() {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.title}>Emergency Response</Text>
+        <Text style={styles.title}>Emergency</Text>
       </View>
 
       {/* Main Buttons */}
