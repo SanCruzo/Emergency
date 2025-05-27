@@ -1,9 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useFonts, Roboto_400Regular, Roboto_700Bold } from '@expo-google-fonts/roboto';
 
 export default function HomeScreen() {
   const router = useRouter();
+
+  const [fontsLoaded] = useFonts({
+    Roboto_400Regular,
+    Roboto_700Bold,
+  });
+
+  const ctrl = 'amb'; // control variable ('amb' or 'h')
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading fonts...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -16,52 +32,60 @@ export default function HomeScreen() {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.title}>Emergency Response</Text>
+        <Text style={styles.title}>Emergency</Text>
       </View>
 
       {/* Main Buttons */}
       <View style={styles.buttonGrid}>
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/patient')}>
-          <Text style={{ fontWeight: 'bold' }}>Insert Patient</Text>
-        </TouchableOpacity>
+        {ctrl === 'amb' && (
+          <>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/patient')}>
+              <Text style={styles.buttonText}>Insert Patient</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/nearestHospital')}>
-          <Text style={{ fontWeight: 'bold' }}>Nearest Hospital</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/ambulanceInfo')}>
+              <Text style={styles.buttonText}>Ambulance Info</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/ambulanceInfo')}>
-          <Text style={{ fontWeight: 'bold' }}>Ambulance Info</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/vital_signs')}>
+              <Text style={styles.buttonText}>Vital Signs</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/VitalParameters')}>
-          <Text style={{ fontWeight: 'bold' }}>Vital Parameters</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/rescuedPatient')}>
+              <Text style={styles.buttonText}>Rescued Patient Info</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/rescuedPatient')}>
-          <Text style={{ fontWeight: 'bold' }}>Rescued Patient Info</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/chat')}>
+              <Text style={styles.buttonText}>Hospital Chat</Text>
+            </TouchableOpacity>
+          </>
+        )}
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/chat')}>
-          <Text style={{ fontWeight: 'bold' }}>Hospital Chat</Text>
-        </TouchableOpacity>
+        {ctrl === 'h' && (
+          <>
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/chat')}>
+              <Text style={styles.buttonText}>Ambulance Chat</Text>
+            </TouchableOpacity>
 
-        {/*
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/multimedia')}>
-          <Text style={{ fontWeight: 'bold' }}>Multimedia</Text>
-        </TouchableOpacity>
-        */}
+            <TouchableOpacity style={styles.button} onPress={() => router.push('/patient_overview')}>
+              <Text style={styles.buttonText}>Patient Overview</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       {/* Bottom Bar */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.logoutButton} onPress={() => console.log('Login button pressed')}>
-          <Text style={styles.logoutText}>Logged user: John Doe</Text>
-        </TouchableOpacity>
+      {(ctrl === 'amb' || ctrl === 'h') && (
+        <View style={styles.bottomBar}>
+          <TouchableOpacity style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Logged user: John Doe</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={() => console.log('Logout button pressed')}>
-          <Text style={styles.logoutText}>LOGOUT</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.logoutButton}>
+            <Text style={styles.logoutText}>LOGOUT</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -76,16 +100,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   topBar: {
-      flexDirection: 'row',
-      backgroundColor: '#00FFFF',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      height: 100,
-      width: '100%',
-      borderRadius: 15,
-      paddingHorizontal: 10,
-      paddingVertical: 10,
-    },
+    flexDirection: 'row',
+    backgroundColor: '#00FFFF',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 100,
+    width: '100%',
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
   bottomBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -110,7 +134,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '600',
+    fontFamily: 'Roboto_700Bold',
     paddingVertical: 10,
   },
   buttonGrid: {
@@ -130,6 +154,11 @@ const styles = StyleSheet.create({
     margin: 10,
     paddingHorizontal: 10,
   },
+  buttonText: {
+    fontFamily: 'Roboto_700Bold',
+    fontSize: 16,
+    color: 'black',
+  },
   logoutButton: {
     backgroundColor: '#eee',
     paddingHorizontal: 30,
@@ -137,6 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   logoutText: {
+    fontFamily: 'Roboto_400Regular',
     fontWeight: 'bold',
   },
 });
