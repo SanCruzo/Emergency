@@ -16,7 +16,7 @@ export default function ActivePatientScreen() {
           <Text style={styles.title}>Emergency</Text>
       </View>
 
-      <Text style={styles.vp}>Vital Parameters</Text>
+      <Text style={styles.vp}>Vital Signs</Text>
 
       {/* Info Table */}
       <View style={styles.infoTable}>
