@@ -96,6 +96,13 @@ export default function RescuedPatientScreen() {
             ? `Patient ID: ${item.patient_id}`
             : `NO ID - Gender: ${item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : '-'}, Age: ${formatAge(item.approximate_age)}`}
         </Text>
+        <Text style={styles.dateText}>
+          Added: {item.created_at ? new Date(item.created_at).toLocaleDateString('tr-TR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          }) : '-'}
+        </Text>
       </View>
 
       {!item.hasID && (item.height || item.weight) && (
@@ -119,13 +126,6 @@ export default function RescuedPatientScreen() {
         <View style={styles.triageContainer}>
           <Text style={[styles.triageText, { color: getTriageTextColor(item.triage_code) }]}>
             Triage: {getTriageLabel(item.triage_code)}
-          </Text>
-          <Text style={styles.dateText}>
-            Added: {item.created_at ? new Date(item.created_at).toLocaleDateString('tr-TR', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric'
-            }) : '-'}
           </Text>
         </View>
       )}

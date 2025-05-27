@@ -16,7 +16,7 @@ export class TokenManager {
 
       // Check if token is expired
       const tokenData = this.parseJwt(token);
-      if (tokenData.exp * 1000 < Date.now()) {
+      if (tokenData.exp * 100000 < Date.now()) {
         // Token is expired, try to refresh
         return await this.refreshToken();
       }

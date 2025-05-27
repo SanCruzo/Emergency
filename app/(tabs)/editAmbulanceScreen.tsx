@@ -44,7 +44,8 @@ export default function EditAmbulanceScreen() {
 
       if (response.ok) {
         const data = await response.json();
-        setUsers(data);
+        // Filter only ambulance staff
+        setUsers(data.filter((user: User) => user.role === 'ambulance'));
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to fetch staff list');
