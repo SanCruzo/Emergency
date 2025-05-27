@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Image, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Image, SafeAreaView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { API_URL } from '../config';
-import { getUserId, getUsername, getRole } from '../utils/auth';
+import { getUserId, getUsername, getRole, getAccessToken } from '../utils/auth';
 
 interface User {
   id: string;
@@ -28,12 +28,34 @@ export default function DirectMessageUsersScreen() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${API_URL}/users/`);
+        const token = await getAccessToken();
+        if (!token) {
+          Alert.alert('Error', 'Please login again');
+          router.replace('/');
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/users/`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            Alert.alert('Session Expired', 'Please login again');
+            router.replace('/');
+            return;
+          }
+          throw new Error('Failed to fetch users');
+        }
+
         const data = await response.json();
         const filtered = currentUserId ? data.filter((u: User) => u.id !== currentUserId) : data;
         setUsers(filtered);
       } catch (e) {
-        // Handle error
+        Alert.alert('Error', 'Failed to load users list');
+        console.error('Error fetching users:', e);
       }
       setLoading(false);
     };

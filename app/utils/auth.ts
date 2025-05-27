@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TokenManager } from './tokenManager';
+import { API_URL } from '../config';
 
 // Store JWT tokens and user info securely
 export const storeAuth = async (access: string, refresh: string, user: { user_id: string, username: string, role: string }) => {
@@ -36,7 +37,7 @@ export const clearAuth = async () => {
 export const refreshAccessToken = async () => {
   const refresh = await AsyncStorage.getItem('refreshToken');
   if (!refresh) return null;
-  const response = await fetch(`${process.env.API_URL}/token/refresh/`, {
+  const response = await fetch(`${API_URL}/token/refresh/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refresh }),

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { API_URL } from '../config';
 import { getAccessToken, getUserId, getUsername, refreshAccessToken } from '../utils/auth';
 
@@ -26,6 +26,7 @@ export default function DirectMessageChatScreen() {
   const [currentUsername, setCurrentUsername] = useState<string | null>(null);
   const [decrypting, setDecrypting] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  const router = useRouter();
 
   // Fetch current user info on mount
   useEffect(() => {
@@ -39,17 +40,34 @@ export default function DirectMessageChatScreen() {
     const fetchMessages = async () => {
       setLoading(true);
       setDecrypting(true);
-      const token = await getAccessToken();
       try {
+        const token = await getAccessToken();
+        if (!token) {
+          Alert.alert('Error', 'Please login again');
+          router.replace('/');
+          return;
+        }
+
         const res = await fetch(`${API_URL}/messages/?ordering=timestamp`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            Alert.alert('Session Expired', 'Please login again');
+            router.replace('/');
+            return;
+          }
+          throw new Error('Failed to fetch messages');
+        }
+
         const data = await res.json();
         // Filter messages between these two users
         const filtered = data.filter((msg: Message) =>
           (msg.sender === currentUserId && msg.receiver === receiverId) ||
           (msg.sender === receiverId && msg.receiver === currentUserId)
         );
+
         // Decrypt each message using the backend endpoint
         const decryptedMessages = await Promise.all(
           filtered.map(async (msg: Message) => {
@@ -57,17 +75,31 @@ export default function DirectMessageChatScreen() {
               const decRes = await fetch(`${API_URL}/messages/${msg.id}/decrypt/`, {
                 headers: { 'Authorization': `Bearer ${token}` },
               });
-              if (decRes.ok) {
-                const decData = await decRes.json();
-                return { ...msg, decrypted_message: decData.decrypted };
+              if (!decRes.ok) {
+                if (decRes.status === 401) {
+                  throw new Error('auth_error');
+                }
+                return { ...msg, decrypted_message: '[Decryption failed]' };
               }
-            } catch {}
-            return { ...msg, decrypted_message: '[Decryption failed]' };
+              const decData = await decRes.json();
+              return { ...msg, decrypted_message: decData.decrypted };
+            } catch (error: any) {
+              if (error.message === 'auth_error') {
+                throw error;
+              }
+              return { ...msg, decrypted_message: '[Decryption failed]' };
+            }
           })
         );
         setMessages(decryptedMessages);
-      } catch (e) {
-        // Handle error
+      } catch (e: any) {
+        if (e.message === 'auth_error') {
+          Alert.alert('Session Expired', 'Please login again');
+          router.replace('/');
+          return;
+        }
+        Alert.alert('Error', 'Failed to load messages');
+        console.error('Error fetching messages:', e);
       }
       setLoading(false);
       setDecrypting(false);
@@ -79,75 +111,66 @@ export default function DirectMessageChatScreen() {
   const handleSend = async () => {
     if (!input.trim() || !currentUserId) return;
     setSending(true);
-    let token = await getAccessToken();
-    let triedRefresh = false;
-    const sendMessage = async (accessToken: string) => {
-      try {
-        const res = await fetch(`${API_URL}/messages/`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            receiver: receiverId,
-            plain_message: input.trim(),
-          }),
-        });
-        if (res.ok) {
-          setInput('');
-          // Refresh messages after sending
-          const data = await res.json();
-          // Decrypt the new message immediately
-          try {
-            const decRes = await fetch(`${API_URL}/messages/${data.id}/decrypt/`, {
-              headers: { 'Authorization': `Bearer ${accessToken}` },
-            });
-            if (decRes.ok) {
-              const decData = await decRes.json();
-              setMessages((prev) => [
-                ...prev,
-                { ...data, decrypted_message: decData.decrypted },
-              ]);
-            } else {
-              setMessages((prev) => [
-                ...prev,
-                { ...data, decrypted_message: '[Decryption failed]' },
-              ]);
-            }
-          } catch {
-            setMessages((prev) => [
-              ...prev,
-              { ...data, decrypted_message: '[Decryption failed]' },
-            ]);
-          }
-          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
-        } else {
-          // If token is expired, try to refresh and retry once
-          const errorData = await res.json();
-          if (
-            errorData.code === 'token_not_valid' &&
-            errorData.messages &&
-            errorData.messages.some((m: any) => m.message && m.message.includes('expired')) &&
-            !triedRefresh
-          ) {
-            triedRefresh = true;
-            const newToken = await refreshAccessToken();
-            if (newToken) {
-              await sendMessage(newToken);
-              return;
-            }
-          }
-          // Show error message from backend
-          Alert.alert('Message Send Error', JSON.stringify(errorData));
-        }
-      } catch (e) {
-        // Show generic error alert
-        Alert.alert('Message Send Error', 'An unexpected error occurred.');
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        Alert.alert('Error', 'Please login again');
+        router.replace('/');
+        return;
       }
+
+      const res = await fetch(`${API_URL}/messages/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          receiver: receiverId,
+          plain_message: input.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          Alert.alert('Session Expired', 'Please login again');
+          router.replace('/');
+          return;
+        }
+        throw new Error('Failed to send message');
+      }
+
+      const data = await res.json();
+      setInput('');
+
+      // Decrypt the new message immediately
+      try {
+        const decRes = await fetch(`${API_URL}/messages/${data.id}/decrypt/`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (!decRes.ok) {
+          if (decRes.status === 401) {
+            Alert.alert('Session Expired', 'Please login again');
+            router.replace('/');
+            return;
+          }
+          setMessages(prev => [...prev, { ...data, decrypted_message: '[Decryption failed]' }]);
+          return;
+        }
+
+        const decData = await decRes.json();
+        setMessages(prev => [...prev, { ...data, decrypted_message: decData.decrypted }]);
+        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      } catch (e) {
+        setMessages(prev => [...prev, { ...data, decrypted_message: '[Decryption failed]' }]);
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Failed to send message');
+      console.error('Error sending message:', e);
+    } finally {
       setSending(false);
-    };
-    await sendMessage(token!);
+    }
   };
 
   // Render each message
