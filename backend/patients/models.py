@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 from users.models import User
 from hospital.models import Hospital
+from ambulance.models import Ambulance
 
 
 class Patient(models.Model):
@@ -34,7 +35,9 @@ class Patient(models.Model):
     # hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, null=True, related_name='patients')
     # ambulance = models.ForeignKey(Ambulance, on_delete=models.SET_NULL, null=True, blank=True, related_name='patients')
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    
+    assigned_ambulance = models.ForeignKey(Ambulance, on_delete=models.SET_NULL, null=True, blank=True, related_name='patients')
+
+
     #extra infos for patient without ID
     gender = models.CharField(max_length=10, blank=True, null=True)
     approximate_age = models.CharField(max_length=20, blank=True, null=True)

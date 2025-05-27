@@ -24,6 +24,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data.pop('password2')
         role = validated_data.pop('role')
         user = User.objects.create_user(**validated_data)
-        user.role = role
+        user.role = role #rle is stored in the user OK 
         user.save()
         return user
