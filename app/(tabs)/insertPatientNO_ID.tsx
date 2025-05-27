@@ -58,7 +58,7 @@ export default function InsertPatientNO_IDScreen() {
         body: JSON.stringify({
           hasID: false,
           gender,
-          age_group: ageGroup,
+          approximate_age: ageGroup,
           height,
           weight,
           complexion,
@@ -172,38 +172,7 @@ export default function InsertPatientNO_IDScreen() {
             </Picker>
           </View>
 
-          {/* Complexion */}
-          <Text style={styles.label}>Complexion</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={complexion}
-              onValueChange={setComplexion}
-              style={styles.picker}
-            >
-              <Picker.Item label="Select complexion..." value="" />
-              <Picker.Item label="Light" value="light" />
-              <Picker.Item label="Olive" value="olive" />
-              <Picker.Item label="Dark" value="dark" />
-              <Picker.Item label="Very dark" value="very-dark" />
-            </Picker>
-          </View>
 
-          {/* Hair */}
-          <Text style={styles.label}>Hair</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={hair}
-              onValueChange={setHair}
-              style={styles.picker}
-            >
-              <Picker.Item label="Select hair color..." value="" />
-              <Picker.Item label="Blonde" value="blonde" />
-              <Picker.Item label="Brown" value="brown" />
-              <Picker.Item label="Red" value="red" />
-              <Picker.Item label="Grey" value="grey" />
-              <Picker.Item label="Bald" value="bald" />
-            </Picker>
-          </View>
 
           <TouchableOpacity
             style={styles.nextButton}

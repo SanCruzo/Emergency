@@ -51,7 +51,22 @@ export default function DirectMessageUsersScreen() {
         }
 
         const data = await response.json();
-        const filtered = currentUserId ? data.filter((u: User) => u.id !== currentUserId) : data;
+        let filtered = data;
+        
+        // Filter out current user
+        if (currentUserId) {
+          filtered = filtered.filter((u: User) => u.id !== currentUserId);
+        }
+
+        // If user is ambulance staff, show only hospital staff
+        // If user is hospital staff, show only ambulance staff
+        // Admin can see all users
+        if (userRole === 'ambulance') {
+          filtered = filtered.filter((u: User) => u.role === 'hospital');
+        } else if (userRole === 'hospital') {
+          filtered = filtered.filter((u: User) => u.role === 'ambulance');
+        }
+
         setUsers(filtered);
       } catch (e) {
         Alert.alert('Error', 'Failed to load users list');
@@ -62,7 +77,7 @@ export default function DirectMessageUsersScreen() {
     if (currentUserId !== null) {
       fetchUsers();
     }
-  }, [currentUserId]);
+  }, [currentUserId, userRole]);
 
   const renderItem = ({ item }: { item: User }) => {
     let displayRole = item.role;

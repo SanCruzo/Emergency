@@ -13,6 +13,8 @@ interface Patient {
   oxygen_saturation: number;
   electromyography: string;
   is_active: boolean;
+  triage_code: string;
+  created_at: string;
 }
 
 export default function VitalSignsScreen() {
@@ -67,6 +69,11 @@ export default function VitalSignsScreen() {
   );
 
   const handlePatientPress = async (patient: Patient) => {
+    if (role === 'hospital') {
+      Alert.alert('Access Denied', 'Hospital staff cannot edit patients.');
+      return;
+    }
+
     const token = await getAccessToken();
     if (!token) {
       Alert.alert('Error', 'You are not logged in');
@@ -81,6 +88,11 @@ export default function VitalSignsScreen() {
   };
 
   const handleVitalSignsEdit = async (patient: Patient) => {
+    if (role === 'hospital') {
+      Alert.alert('Access Denied', 'Hospital staff cannot edit patients.');
+      return;
+    }
+
     const token = await getAccessToken();
     if (!token) {
       Alert.alert('Error', 'You are not logged in');
@@ -92,6 +104,28 @@ export default function VitalSignsScreen() {
       pathname: '/editVitalSigns',
       params: { patient: JSON.stringify(patient) }
     });
+  };
+
+  const getTriageLabel = (code: string) => {
+    switch (code) {
+      case 'white':
+        return 'Not Urgent';
+      case 'green':
+        return 'Minor Urgent';
+      case 'deepskyblue':
+        return 'Deferrable';
+      case 'orange':
+        return 'Urgent';
+      case 'red':
+        return 'Major Urgent';
+      default:
+        return 'Not Set';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
   return (
@@ -133,16 +167,26 @@ export default function VitalSignsScreen() {
                   <Text style={styles.vitalValue}>{patient.blood_pressure || 'N/A'}</Text>
                 </View>
                 <View style={styles.vitalItem}>
-                  <Text style={styles.vitalLabel}>Heart Rate</Text>
-                  <Text style={styles.vitalValue}>{patient.heart_rate ? `${patient.heart_rate} bpm` : 'N/A'}</Text>
-                </View>
-                <View style={styles.vitalItem}>
                   <Text style={styles.vitalLabel}>O₂ Saturation</Text>
                   <Text style={styles.vitalValue}>{patient.oxygen_saturation ? `${patient.oxygen_saturation}%` : 'N/A'}</Text>
                 </View>
                 <View style={styles.vitalItem}>
+                  <Text style={styles.vitalLabel}>Heart Rate</Text>
+                  <Text style={styles.vitalValue}>{patient.heart_rate ? `${patient.heart_rate} bpm` : 'N/A'}</Text>
+                </View>
+                <View style={styles.vitalItem}>
                   <Text style={styles.vitalLabel}>EMG</Text>
                   <Text style={styles.vitalValue}>{patient.electromyography || 'N/A'}</Text>
+                </View>
+                <View style={styles.vitalItem}>
+                  <Text style={styles.vitalLabel}>Triage Code</Text>
+                  <Text style={[styles.vitalValue, { color: patient.triage_code || '#666' }]}>
+                    {getTriageLabel(patient.triage_code)}
+                  </Text>
+                </View>
+                <View style={styles.vitalItem}>
+                  <Text style={styles.vitalLabel}>Added Date</Text>
+                  <Text style={styles.vitalValue}>{formatDate(patient.created_at)}</Text>
                 </View>
               </View>
 
@@ -237,9 +281,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   patientHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
+    gap: 5,
     marginBottom: 10,
   },
   patientId: {

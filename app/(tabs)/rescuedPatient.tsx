@@ -13,13 +13,15 @@ type Patient = {
   is_active: boolean;
   created_at: string;
   gender?: string | null;
-  age_group?: string | null;
-  height?: string | null;
-  weight?: string | null;
-  complexion?: string | null;
-  hair?: string | null;
+  approximate_age?: string | null;
   patient_id: string;
   hasID: boolean;
+  blood_pressure?: string;
+  heart_rate?: number;
+  oxygen_saturation?: number;
+  electromyography?: string;
+  height?: string;
+  weight?: string;
 };
 
 export default function RescuedPatientScreen() {
@@ -68,31 +70,63 @@ export default function RescuedPatientScreen() {
     router.push('/insertPatient');
   };
 
-  const renderPatient = ({ item }: { item: Patient }) => (
+  const renderPatient = ({ item }: { item: Patient }) => {
+    const formatAge = (age: string | null | undefined) => {
+      if (!age) return '-';
+      return age.charAt(0).toUpperCase() + age.slice(1);
+    };
+
+    return (
     <TouchableOpacity
       style={styles.infoTable}
-      onPress={() =>
+      onPress={() => {
+        if (role === 'hospital') {
+          Alert.alert('Access Denied', 'Hospital staff cannot edit patients.');
+          return;
+        }
         router.push({
           pathname: '/editPatientScreen',
           params: { patient: JSON.stringify(item) },
-        })
-      }
+        });
+      }}
     >
-      <Text style={styles.infoText}>
-        {item.hasID
-          ? `Patient ID: ${item.patient_id}`
-          : `NO ID - Gender: ${item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : '-'}, Age: ${item.age_group || '-'}`}
-      </Text>
-      {item.triage_code && (
-        <Text style={[styles.infoText, { color: getTriageTextColor(item.triage_code) }]}>
-          Triage: {getTriageLabel(item.triage_code)}
+      <View style={styles.patientHeader}>
+        <Text style={styles.patientIdText}>
+          {item.hasID
+            ? `Patient ID: ${item.patient_id}`
+            : `NO ID - Gender: ${item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : '-'}, Age: ${formatAge(item.approximate_age)}`}
         </Text>
+      </View>
+
+      {!item.hasID && (item.height || item.weight) && (
+        <View style={styles.physicalInfoContainer}>
+          <Text style={styles.physicalInfoText}>
+            {item.height && `Height: ${item.height}`}
+            {item.height && item.weight && ', '}
+            {item.weight && `Weight: ${item.weight}`}
+          </Text>
+        </View>
       )}
+
       {item.symptoms && item.symptoms.length > 0 && (
-        <Text style={styles.infoText}>Symptoms: {item.symptoms.join(', ')}</Text>
+        <View style={styles.symptomsContainer}>
+          <Text style={styles.symptomsLabel}>Symptoms:</Text>
+          <Text style={styles.symptomsText}>{item.symptoms.join(', ')}</Text>
+        </View>
+      )}
+
+      {item.triage_code && (
+        <View style={styles.triageContainer}>
+          <Text style={[styles.triageText, { color: getTriageTextColor(item.triage_code) }]}>
+            Triage: {getTriageLabel(item.triage_code)}
+          </Text>
+          <Text style={styles.dateText}>
+            Added: {item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}
+          </Text>
+        </View>
       )}
     </TouchableOpacity>
-  );
+  )};
 
   const getTriageLabel = (code: string) => {
     switch (code) {
@@ -285,5 +319,80 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     color: '#333',
+  },
+  patientHeader: {
+    marginBottom: 10,
+  },
+  patientIdText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 5,
+  },
+  detailsGrid: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.8,
+    flex: 1,
+  },
+  detailValue: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: '500',
+    flex: 2,
+  },
+  symptomsContainer: {
+    marginTop: 10,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 6,
+  },
+  symptomsLabel: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.8,
+    marginBottom: 4,
+  },
+  symptomsText: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: '500',
+  },
+  triageContainer: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  triageText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.8,
+  },
+  physicalInfoContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 6,
+    padding: 8,
+    marginBottom: 10,
+  },
+  physicalInfoText: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: '500',
   },
 });

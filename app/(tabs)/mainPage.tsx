@@ -30,10 +30,11 @@ export default function HomeScreen() {
 
       {/* Main Buttons */}
       <View style={styles.buttonGrid}>
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/patient')}>
-          <Text style={{ fontWeight: 'bold' }}>Insert Patient</Text>
-        </TouchableOpacity>
-
+        {role !== 'hospital' && (
+          <TouchableOpacity style={styles.button} onPress={() => router.push('/patient')}>
+            <Text style={{ fontWeight: 'bold' }}>Insert Patient</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity style={styles.button} onPress={() => router.push('/ambulanceInfo')}>
           <Text style={{ fontWeight: 'bold' }}>Ambulance Info</Text>
@@ -50,10 +51,7 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.button} onPress={() => router.push('/directMessageUsers')}>
           <Text style={{ fontWeight: 'bold' }}>Direct Message</Text>
         </TouchableOpacity>
-        
-
       </View>
-
 
       {/* Exit Button */}
       <TouchableOpacity

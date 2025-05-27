@@ -4,7 +4,7 @@ import { Checkbox } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { API_URL } from '../config';
-import { getAccessToken } from '../utils/auth';
+import { getAccessToken, getRole } from '../utils/auth';
 
 const symptomsList = {
   Respiratory: ['Dyspnea', 'Rales', 'Cough', 'Cyanosis', 'Tachypnea'],
@@ -27,6 +27,12 @@ export default function EditPatientScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const patient = params.patient ? JSON.parse(params.patient as string) : {};
+  const [userRole, setUserRole] = useState('');
+
+  useEffect(() => {
+    // Get user role when component mounts
+    getRole().then((role) => setUserRole(role || ''));
+  }, []);
 
   const isNoID = !patient.hasID;
 
@@ -46,7 +52,7 @@ export default function EditPatientScreen() {
   const [isActive, setIsActive] = useState(patient.is_active ?? true);
 
   const [gender, setGender] = useState(patient.gender || '');
-  const [ageGroup, setAgeGroup] = useState(patient.age_group || '');
+  const [ageGroup, setAgeGroup] = useState(patient.approximate_age || '');
   const [height, setHeight] = useState(patient.height || '');
   const [weight, setWeight] = useState(patient.weight || '');
   const [complexion, setComplexion] = useState(patient.complexion || '');
@@ -71,7 +77,7 @@ export default function EditPatientScreen() {
       body = {
         ...body,
         gender,
-        age_group: ageGroup,
+        approximate_age: ageGroup,
         height,
         weight,
         complexion,
@@ -125,6 +131,11 @@ export default function EditPatientScreen() {
   };
 
   const handleDelete = async () => {
+    if (userRole !== 'admin') {
+      Alert.alert('Access Denied', 'Only admins can delete patients.');
+      return;
+    }
+
     Alert.alert(
       'Delete Patient',
       'Are you sure you want to delete this patient? This action cannot be undone.',
@@ -247,36 +258,7 @@ export default function EditPatientScreen() {
                   </Picker>
                 </View>
 
-                <Text style={styles.label}>Complexion</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={complexion}
-                    onValueChange={setComplexion}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Select complexion..." value="" />
-                    <Picker.Item label="Light" value="light" />
-                    <Picker.Item label="Olive" value="olive" />
-                    <Picker.Item label="Dark" value="dark" />
-                    <Picker.Item label="Very dark" value="very-dark" />
-                  </Picker>
-                </View>
 
-                <Text style={styles.label}>Hair</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={hair}
-                    onValueChange={setHair}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Select hair color..." value="" />
-                    <Picker.Item label="Blonde" value="blonde" />
-                    <Picker.Item label="Brown" value="brown" />
-                    <Picker.Item label="Red" value="red" />
-                    <Picker.Item label="Grey" value="grey" />
-                    <Picker.Item label="Bald" value="bald" />
-                  </Picker>
-                </View>
               </>
             ) : (
               <>

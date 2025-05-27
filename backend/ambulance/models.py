@@ -3,7 +3,7 @@ from users.models import User
 
 class Ambulance(models.Model):
     plate_number = models.CharField(max_length=20, unique=True)
-    staff = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='driven_ambulances') #linked to user model 
+    staff = models.ManyToManyField(User, related_name='ambulances') # needs to be linked to user model 
     location_lat = models.DecimalField(max_digits=9, decimal_places=6) 
     location_long = models.DecimalField(max_digits=9, decimal_places=6) #change name for consistensy with db 
     status = models.CharField(
