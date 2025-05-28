@@ -21,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hd^7i&u*=^ape(e6i-mda#4(xabk-7)n0n0)l7*_z5f7)2&0zw'
+SECRET_KEY = 'SECRET-KEY-HERE'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -136,7 +136,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -157,6 +157,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'emergsdh@gmail.com'
-EMAIL_HOST_PASSWORD = 'flyb rutz yudl bukv'
-DEFAULT_FROM_EMAIL = 'emergsdh@gmail.com'
+EMAIL_HOST_USER = 'EMAIL-HOST-USER-HERE'
+EMAIL_HOST_PASSWORD = 'HOST-PASSWORD-HERE'
+DEFAULT_FROM_EMAIL = 'DEFAULT-FROM-EMAIL-HERE'
